@@ -8,10 +8,10 @@ LDFLAGS=-static
 
 all: main
 clean:
-    rm main
+	rm main
 
 main:   Makefile main.c
-    $(CC) main.c
-    -I$(DAQINC)  -O \
-    -lm -ldl -lrt -lpthread -static -o main
+	$(CC) main.c \
+	-I./ -I./include/ -O \
+	-lm -ldl -lrt -lpthread -static -o main
 

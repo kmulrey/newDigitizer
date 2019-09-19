@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		414A68B02332553600CB37D6 /* CLASS_Sockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CLASS_Sockets.h; sourceTree = "<group>"; };
+		414A68B12332575500CB37D6 /* FUNCTION_Sockets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FUNCTION_Sockets.h; sourceTree = "<group>"; };
+		414A68B2233257BC00CB37D6 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		414A68B4233258A500CB37D6 /* CLASS_Unit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CLASS_Unit.h; sourceTree = "<group>"; };
+		414A68B523325AA400CB37D6 /* FUNCTION_Unit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FUNCTION_Unit.h; sourceTree = "<group>"; };
 		41848B99231EC2C600B9A86F /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
 		41848B9A231EC2C600B9A86F /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; path = include; sourceTree = "<group>"; };
 		41848B9B231EC2C600B9A86F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
@@ -19,6 +24,11 @@
 			children = (
 				41848B9A231EC2C600B9A86F /* include */,
 				41848B9B231EC2C600B9A86F /* main.c */,
+				414A68B523325AA400CB37D6 /* FUNCTION_Unit.h */,
+				414A68B4233258A500CB37D6 /* CLASS_Unit.h */,
+				414A68B2233257BC00CB37D6 /* Constants.h */,
+				414A68B02332553600CB37D6 /* CLASS_Sockets.h */,
+				414A68B12332575500CB37D6 /* FUNCTION_Sockets.h */,
 				41848B9C231EC2C600B9A86F /* Makefile */,
 				41848B99231EC2C600B9A86F /* src */,
 			);
