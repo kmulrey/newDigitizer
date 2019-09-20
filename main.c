@@ -26,7 +26,7 @@
 #include <string.h>
 #include <errno.h>
 #include <netdb.h>
-#define PORT 8081
+#define PORT 8002
 #define PORT2 8082
 
 int ls_port;       //!<port number on which to connect to the central daq
@@ -189,10 +189,10 @@ int main(int argc,char **argv){
     
     printf("okay\n");
 
-    socket_main();
+    //socket_main();
     
     
-    /*
+    
     
     char message[100] ={ '\0' };
     int sockfd, connfd;
@@ -220,7 +220,7 @@ int main(int argc,char **argv){
     }
     else
     printf("connected to the server..\n");
-    */
+    
     
     
     
