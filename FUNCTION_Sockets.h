@@ -1,81 +1,128 @@
-#include "CLASS_Sockets.h"
-/*
-int SOCKET_CALLS:: Open_Socket(int PORT_NUM)
+#include <stdio.h>
+#include <signal.h>
+#include <math.h>
+#include <string.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <stdlib.h>
+
+#define MAX 200
+#define SA struct sockaddr
+
+
+struct socket_connection
 {
-    Host_Addr.sin_family=AF_INET ;
-    Host_Addr.sin_port=htons(PORT_NUM) ;
-    Host_Addr.sin_addr=*(struct in_addr*)Host->h_addr ;
-    printf("Address=%u\n",Host_Addr.sin_addr.s_addr) ;
-    memset(Host_Addr.sin_zero,'\0',sizeof Host_Addr.sin_zero) ;
+    int port;
+    int sockfd, connfd;
+    socklen_t len;
+    struct sockaddr_in servaddr, cli;
+} ;
+
+
+void make_socket(struct socket_connection* sock){
+    // socket create and verification
     
-    if((sockfd=socket(AF_INET,SOCK_STREAM,0))==-1)
-    {
-        perror("socket(): Error\n") ;
-        exit(1) ;
+    sock->sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock->sockfd == -1) {
+        printf("socket creation failed...\n");
+        exit(0);
     }
-    return sockfd ;
-}
-
-void SOCKET_CALLS:: Connect_Socket(int PORT_NUM)
-{
-    if(connect(sockfd,(struct sockaddr*)&Host_Addr,sizeof Host_Addr)==-1)
-    {
-        perror("connect(): Error\n") ;
-        printf("connect(): Error %d\n",PORT_NUM) ;
-        exit(1) ;
-    }
-}
-
-void SOCKET_CALLS:: Bind_Socket()
-{
-    int on=1 ;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on) ) ;    //socket reuse
-    if(bind(sockfd,(struct sockaddr *)&Host_Addr,sizeof Host_Addr)==-1)
-    {
-        perror("bind(): Error\n") ;
-        //printf("Port number %d\n",3301) ;
-        exit(1) ;
-    }
-}
-
-void SOCKET_CALLS:: Listen_Socket()
-{
-    if(listen(sockfd,1)==-1)
-    {
-        perror("listen(): Error\n") ;
-        exit(1) ;
-    }
-}
-
-int SOCKET_CALLS:: Accept_Socket()
-{
-    struct sockaddr_storage their_addr ;
-    socklen_t addr_size ;
-    addr_size=sizeof their_addr ;
+    else
+        printf("Socket successfully created..\n");
+    bzero(&sock->servaddr, sizeof(sock->servaddr));
     
-    if((newsockfd=accept(sockfd,(struct sockaddr*) &their_addr,&addr_size))==-1)
-    {
-        perror("accept(): Error\n") ;
-        exit(1) ;
+    // assign IP, PORT
+    sock->servaddr.sin_family = AF_INET;
+    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.1");
+    sock->servaddr.sin_port = htons(sock->port);
+    
+}
+
+
+void connect_socket(struct socket_connection* sock)
+{
+    
+    if (connect(sock->sockfd, (SA*)&sock->servaddr, sizeof(sock->servaddr)) != 0) {
+        printf("connection with the server failed...\n");
+        exit(0);
     }
-    return newsockfd ;
+    else
+        printf("connected to the server..\n");
 }
 
-int SOCKET_CALLS:: Write_Data(unsigned char* data)
+
+void func_write(int sockfd)
 {
-    write_bytes=write(sockfd,data,sizeof (data)) ;
-    printf("write bytes=%d\n",write_bytes) ;
-    return(write_bytes) ;
+    char buff[MAX];
+    int n;
+    for (;;) {
+        bzero(buff, sizeof(buff));
+        printf("Enter the string : ");
+        n = 0;
+        while ((buff[n++] = getchar()) != '\n');
+        write(sockfd, buff, sizeof(buff));
+        
+        if ((strncmp(buff, "exit", 4)) == 0) {
+            printf("Client Exit...\n");
+            break;
+        }
+        bzero(buff, sizeof(buff));
+    }
 }
 
-void SOCKET_CALLS:: Read_Data()
+void func_write_auto(int sockfd)
 {
-    read_bytes=read(sockfd,read_data,sizeof read_data) ;
+    char buff[MAX];
+    int n;
+    int i;
+    for (i=0; i<1; i++) {
+        bzero(buff, sizeof(buff));
+        strncpy(buff, "Hi, I'm connected\n", sizeof buff - 1);
+        write(sockfd, buff, sizeof(buff));
+        bzero(buff, sizeof(buff));
+    }
+    strncpy(buff, "exit\n", sizeof buff - 1);
+    write(sockfd, buff, sizeof(buff));
+    bzero(buff, sizeof(buff));
+
 }
 
-void SOCKET_CALLS:: Close_Socket()
+void func_read(int sockfd1)
 {
-    close(newsockfd) ;
-    close(sockfd) ;
+    int i;
+    char buff[MAX];
+    int n;
+    // infinite loop for chat
+    for (i=0; i<5; i++) {
+        bzero(buff, MAX);
+        // read the message from client and copy it in buffer
+        read(sockfd1, buff, sizeof(buff));
+        // print buffer which contains the client contents
+        printf("From client: %s", buff);
+        if ((strncmp(buff, "exit", 4)) == 0) {
+            
+            printf("Client Exit...\n");
+            break;
+        }
+        
+        bzero(buff, MAX);
+        n = 0;
+    }
 }
-*/
+
+void func_read_message(int sockfd1)
+{
+    char buff[MAX];
+    bzero(buff, MAX);
+    read(sockfd1, buff, sizeof(buff));
+    printf("size of received buffer: %d\n", sizeof(buff));
+
+    printf("From server: %x,  %x\n", buff[0],buff[1]);
+
+    bzero(buff, MAX);
+}
