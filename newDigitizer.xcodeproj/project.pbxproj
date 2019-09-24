@@ -13,17 +13,17 @@
 		414A68B4233258A500CB37D6 /* CLASS_Unit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CLASS_Unit.h; sourceTree = "<group>"; };
 		414A68B523325AA400CB37D6 /* FUNCTION_Unit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FUNCTION_Unit.h; sourceTree = "<group>"; };
 		41848B99231EC2C600B9A86F /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
-		41848B9A231EC2C600B9A86F /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; path = include; sourceTree = "<group>"; };
 		41848B9B231EC2C600B9A86F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		41848B9C231EC2C600B9A86F /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		41ACAD47233A082B00B8AA3B /* scopeFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scopeFunctions.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		41848B92231EC0A700B9A86F = {
 			isa = PBXGroup;
 			children = (
-				41848B9A231EC2C600B9A86F /* include */,
 				41848B9B231EC2C600B9A86F /* main.c */,
+				41ACAD47233A082B00B8AA3B /* scopeFunctions.h */,
 				414A68B523325AA400CB37D6 /* FUNCTION_Unit.h */,
 				414A68B4233258A500CB37D6 /* CLASS_Unit.h */,
 				414A68B2233257BC00CB37D6 /* Constants.h */,

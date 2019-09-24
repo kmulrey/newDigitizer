@@ -38,7 +38,9 @@ void make_socket(struct socket_connection* sock){
     
     // assign IP, PORT
     sock->servaddr.sin_family = AF_INET;
-    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.1");
+    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.1");
+    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.61.1");
+
     sock->servaddr.sin_port = htons(sock->port);
     
 }
@@ -68,7 +70,7 @@ void func_write(int sockfd)
         write(sockfd, buff, sizeof(buff));
         
         if ((strncmp(buff, "exit", 4)) == 0) {
-            printf("Client Exit...\n");
+            //printf("Client Exit...\n");
             break;
         }
         bzero(buff, sizeof(buff));
@@ -115,14 +117,29 @@ void func_read(int sockfd1)
     }
 }
 
-void func_read_message(int sockfd1)
+int func_read_message(int sockfd1)
 {
+    printf("\n\n");
+    int exit=0;
     char buff[MAX];
     bzero(buff, MAX);
     read(sockfd1, buff, sizeof(buff));
-    printf("size of received buffer: %d\n", sizeof(buff));
+    //printf("size of received buffer: %d\n", sizeof(buff));
 
-    printf("From server: %x,  %x\n", buff[0],buff[1]);
-
+    printf("From server: %x,  %x,  %x\n", buff[0],buff[1],buff[2]);
+    
+    if(buff[0]!=0x99){
+        printf("message header not recognized: %x\n",buff[0]);
+    }
+    if(buff[0]==0x99){
+        printf("start new message: %x\n",buff[0]);
+        printf("message type: %x\n",buff[1]);
+        if(buff[1]==0xaa){
+            exit=1;
+            printf("received exit message\n");
+        }
+    }
+    
     bzero(buff, MAX);
+    return exit;
 }
