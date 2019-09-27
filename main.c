@@ -44,6 +44,8 @@ int main(int argc,char **argv){
     printf("start time: %d\n",time1);
     int exit=0;
     
+    initialize_parameter_lists();
+    //printf("checking initialization: %04x\n",ch_property_params[0][0]);
     sock_send.port=PORT1;
     sock_listen.port=PORT2;
 

@@ -66,6 +66,13 @@
 #define ID_PARAM_NOP          0x66
 #define ID_PARAM_LORA          0x20
 
+#define LEN_MODE_PARAM 0x09
+#define LEN_READOUT_PARAM 0x0B
+#define LEN_CH_PROPERTY_PARAM 0x09
+#define LEN_CH_TRIGGER_PARAM 0x09
+
+
+
 /* Error Definition */
 #define ERROR_BCNT 2
 #define ERROR_ID   4
@@ -81,7 +88,16 @@ uint8_t shadowlistR[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE]; //!< all parameters rea
 //int32_t shadow_filled = 0;                               //!< the shadow list is not filled
 
 
-uint8_t set_param_list[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE];
+uint16_t dig_mode_params[LEN_MODE_PARAM ];
+uint16_t readout_window_params[LEN_READOUT_PARAM];
+uint16_t ch_property_params[4][LEN_CH_PROPERTY_PARAM];
+uint16_t ch_trigger_params[4][LEN_CH_TRIGGER_PARAM];
+
+
+
+
+
+
 
 /*
 char* Hostname="lora" ;

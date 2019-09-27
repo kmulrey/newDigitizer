@@ -13,6 +13,37 @@
 //#include "scopeFunctions.h"
 #include "Scope.h"
 
+uint16_t list_id_ch[4]={0x099,0x0999,0x0A99,0x0B99};
+uint16_t list_id_trigg[4]={0x0C99,0x0D99,0x0E99,0x0F99};
+
+void initialize_parameter_lists(){
+    
+    printf("initializing parameter lists\n");
+    int ch;
+    
+    
+    
+    
+    readout_window_params[0]=0x0299; // header,list number
+    readout_window_params[1]=0x0016; // byte count
+    readout_window_params[10]=0x6666; // end
+
+    
+    
+    
+    for(ch=0; ch<4; ch++){
+        ch_property_params[ch][0]=list_id_ch[ch];      // start, list number
+        ch_property_params[ch][1]=0x16;      // byte count
+        ch_property_params[ch][6]=0x00;  // PM voltage, filter
+        ch_property_params[ch][7]=0x00;  // spare
+        ch_property_params[ch][8]=0x6666;  // end
+    
+        ch_trigger_params[ch][0]=list_id_trigg[ch] ;    // start,list number
+        ch_trigger_params[ch][1]=0x0012 ;    // byte count
+        ch_trigger_params[ch][8]=0x6666 ;    // end
+
+    }
+}
 
 
 
@@ -20,12 +51,57 @@ void build_property_ctrlist(char *buff, int32_t size){
     
     printf("building control list %04x: \n",buff[1]);
     
-    unsigned short ctrllist1[9]={0x0899,0x0012,0x3fa9,0x007f,0x3e80,0x0000,0x0000,0x0000,0x6666};
+    //unsigned short ctrllist1[9]={0x0899,0x0012,0x3fa9,0x007f,0x3e80,0x0000,0x0000,0x0000,0x6666};
     //uint8_t set_param_list[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE];
+    uint8_t i=buff[1];
+    if(i==0x20){
+        int ch=buff[2]-1;
+        
+
+        ch_property_params[ch][2]=0x00;      // gain correction
+        //ch_property_params[ch][5]=0x00;      // gain correction
+        ch_property_params[ch][3]=0x00;      // offset correction
+        //ch_property_params[ch][7]=0x00;      // integration time
+        ch_property_params[ch][4]=0x00;      // base max
+        //ch_property_params[ch][9]=0x00;      // base max
+        ch_property_params[ch][5]=0x00;     // base max
+        //ch_property_params[ch][11]=0x00;  // base max
+ 
+
     
-    
-    
-    
+        ch_trigger_params[ch][2]=0x00 ;    // signal threshold T1
+        //ch_trigger_params[ch][5]=0x00 ;    // signal threshold T1
+        ch_trigger_params[ch][3]=0x00 ;    // noise threshold T2
+        //ch_trigger_params[ch][7]=0x00 ;    // noise threshold T2
+        ch_trigger_params[ch][4]=0x00 ;    // t_prev (n*5ns)
+        //ch_trigger_params[ch][9]=0x00 ;    // t_per  (n*5ns)
+        ch_trigger_params[ch][5]=0x00 ;    // tcmax (n*5ns)
+        //ch_trigger_params[ch][11]=0x00 ;    // ncmax
+        ch_trigger_params[ch][6]=0x00 ;    // ncmin
+        //ch_trigger_params[ch][13]=0x00 ;    // qmax
+        ch_trigger_params[ch][7]=0x00 ;    // qmin
+ 
+        readout_window_params[4*(ch+1)+0]=0x00; // pre coin time
+        //readout_window_params[4*(ch+1)+1]=0x00; // pre coin time
+        readout_window_params[4*(ch+1)+1]=0x00; //post coin time
+        //readout_window_params[4*(ch+1)+3]=0x00; //post coin time
+
+
+        
+    }
+    /*
+    uint8_t dig_mode_params[LEN_MODE_PARAM ];
+    uint8_t readout_window_params[LEN_READOUT_PARAM];
+    uint8_t ch1_property_params[LEN_CH_PROPERTY_PARAM];
+    uint8_t ch2_property_params[LEN_CH_PROPERTY_PARAM];
+    uint8_t ch3_property_params[LEN_CH_PROPERTY_PARAM];
+    uint8_t ch4_property_params[LEN_CH_PROPERTY_PARAM];
+    uint8_t ch1_trigger_params[LEN_CH_TRIGGER_PARAM];
+    uint8_t ch2_trigger_params[LEN_CH_TRIGGER_PARAM];
+    uint8_t ch3_trigger_params[LEN_CH_TRIGGER_PARAM];
+    uint8_t ch4_trigger_params[LEN_CH_TRIGGER_PARAM];
+
+    */
     
     /*
     printf("%04x: header\n",buff[0]);
