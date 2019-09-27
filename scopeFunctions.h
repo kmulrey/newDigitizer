@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <errno.h>
+#include "Scope.h"
 //#include "LS.h"
 //#include "amsg.h"
 //#include "scope.h"
@@ -26,71 +27,6 @@
 DEV dev = 0;                    //!< Device id
 int station_id;
 
-#define MSG_START    0x99 //!< start of fpga message
-#define MSG_END      0x66 //!< end of fpga message
-
-
-/* Time stamp offsets (within 7B time field) */
-
-#define TIME_YEAR       0
-#define TIME_MON        2
-#define TIME_DAY        3
-#define TIME_HOUR       4
-#define TIME_MIN        5
-#define TIME_SEC        6
-
-
-/*----------------------------------------------------------------------*/
-/* Maxima / minima */
-
-/* Maximum ADC size = 4 channels * max_samples/ch * 2 bytes/sample */
-/* Maximum event size = header + ADC data + message end       */
-
-#define DATA_MAX_SAMP   4096                       //!< Maximal trace length (samples)
-#define MAX_READOUT     (70 + DATA_MAX_SAMP*8 + 2) //!< Maximal raw event size
-
-#define MIN_MSG_LEN     6                          //!< Minimal length of scope message
-
-/*----------------------------------------------------------------------*/
-/* Message definitions */
-#define ID_PARAM_GPS          0x00
-#define ID_PARAM_CTRL         0x01
-#define ID_PARAM_WINDOWS      0x02
-#define ID_PARAM_COMRES       0x03
-#define ID_PARAM_SPI          0x04
-#define ID_PARAM_TRIG5        0x05
-#define ID_PARAM_CH1          0x08
-#define ID_PARAM_CH2          0x09
-#define ID_PARAM_CH3          0x0A
-#define ID_PARAM_CH4          0x0B
-#define ID_PARAM_TRIG1        0x0C
-#define ID_PARAM_TRIG2        0x0D
-#define ID_PARAM_TRIG3        0x0E
-#define ID_PARAM_TRIG4        0x0F
-#define ID_PARAM_FILT11       0x10
-#define ID_PARAM_FILT12       0x11
-#define ID_PARAM_FILT21       0x12
-#define ID_PARAM_FILT22       0x13
-#define ID_PARAM_FILT31       0x14
-#define ID_PARAM_FILT32       0x15
-#define ID_PARAM_FILT41       0x16
-#define ID_PARAM_FILT42       0x17
-#define ID_PARAM_PPS          0xC4
-#define ID_PARAM_EVENT        0xC0
-#define ID_PARAM_ERROR        0xCE
-#define ID_PARAM_NOP          0x66
-
-/* Error Definition */
-#define ERROR_BCNT 2
-#define ERROR_ID   4
-#define ERROR_END  6
-
-#define PARAM_NUM_LIST 0x18     //!< Number of parameter lists for the fpga
-#define PARAM_LIST_MAXSIZE 22   //!< maximal listsize 22 bytes
-
-uint8_t shadowlist[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE];  //!< all parameters to set in FPGA
-uint8_t shadowlistR[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE]; //!< all parameters read from FPGA
-int32_t shadow_filled = 0;                               //!< the shadow list is not filled
 
 void ls_get_station_id()
 {
@@ -345,7 +281,7 @@ void scope_main()
     }
     
     for(i=0; i<PARAM_LIST_MAXSIZE; i++){
-        printf("shadow: %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x\n",shadowlistR[1][i],shadowlistR[2][i],shadowlistR[3][i],shadowlistR[4][i],shadowlistR[8][i],shadowlistR[9][i],shadowlistR[10][i],shadowlistR[11][i],shadowlistR[12][i],shadowlistR[13`1][i]); //!< all parameters read from FPGA
+        printf("shadow: %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x\n",shadowlistR[1][i],shadowlistR[2][i],shadowlistR[3][i],shadowlistR[4][i],shadowlistR[8][i],shadowlistR[9][i],shadowlistR[10][i],shadowlistR[11][i],shadowlistR[12][i],shadowlistR[13][i]); //!< all parameters read from FPGA
     }
      
     //scope_write((uint8_t *)ctrllist,sizeof(ctrllist));

@@ -13,7 +13,7 @@
 #include <FUNCTION_Sockets.h>
 #include <time.h>
 #include <scopeFunctions.h>
-
+#include "Scope.h"
 
 #define    PORT1    8002
 #define    PORT2    8003
@@ -21,6 +21,8 @@ int dtime=2;
 
 //int sockfd, connfd;
 //struct sockaddr_in servaddr, cli;
+
+
 
 
 
@@ -79,9 +81,9 @@ int main(int argc,char **argv){
     
 
     
-    ls_get_station_id();
+    //ls_get_station_id();
 
-    scope_main();
+    //scope_main();
     
     
     

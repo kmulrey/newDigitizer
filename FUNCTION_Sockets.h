@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include "FUNCTION_Unit.h"
 
 #define MAX 200
 #define SA struct sockaddr
@@ -38,8 +39,8 @@ void make_socket(struct socket_connection* sock){
     
     // assign IP, PORT
     sock->servaddr.sin_family = AF_INET;
-    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.1");
-    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.61.1");
+    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.1");
+    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.40.1");
 
     sock->servaddr.sin_port = htons(sock->port);
     
@@ -138,6 +139,10 @@ int func_read_message(int sockfd1)
             exit=1;
             printf("received exit message\n");
         }
+    }
+    if(buff[1]==0x20){
+        printf("received parameter list\n",buff[0]);
+        build_property_ctrlist(buff,sizeof(buff));
     }
     
     bzero(buff, MAX);
