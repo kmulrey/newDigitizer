@@ -24,7 +24,7 @@
 #define TIME_MIN        5
 #define TIME_SEC        6
 
-
+   
 /*----------------------------------------------------------------------*/
 /* Maxima / minima */
 
@@ -82,17 +82,17 @@
 #define PARAM_LIST_MAXSIZE 22   //!< maximal listsize 22 bytes
 
 
-
 uint8_t shadowlist[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE];  //!< all parameters to set in FPGA
 uint8_t shadowlistR[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE]; //!< all parameters read from FPGA
 //int32_t shadow_filled = 0;                               //!< the shadow list is not filled
 
 
-uint16_t dig_mode_params[LEN_MODE_PARAM ];
+uint16_t dig_mode_params[LEN_MODE_PARAM];
 uint16_t readout_window_params[LEN_READOUT_PARAM];
 uint16_t ch_property_params[4][LEN_CH_PROPERTY_PARAM];
 uint16_t ch_trigger_params[4][LEN_CH_TRIGGER_PARAM];
 
+int ch_HV[4];
 
 
 

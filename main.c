@@ -57,10 +57,21 @@ int main(int argc,char **argv){
     
     
     func_write_auto(sock_send.sockfd);
+
    // sleep(3000);
    // func_read(sock_listen.sockfd);
     func_read_message(sock_listen.sockfd);
     printf("received control messages...\n");
+    func_read_message(sock_listen.sockfd);
+    printf("received control messages...\n");
+    func_read_message(sock_listen.sockfd);
+    printf("received control messages...\n");
+    func_read_message(sock_listen.sockfd);
+    printf("received control messages...\n");
+    func_read_message(sock_listen.sockfd);
+    printf("received control messages...\n");
+    
+    /*
     //exit=func_read_message(sock_listen.sockfd);
     //exit=func_read_message(sock_listen.sockfd);
     //exit=func_read_message(sock_listen.sockfd);
@@ -85,10 +96,10 @@ int main(int argc,char **argv){
     
     //ls_get_station_id();
 
-    //scope_main();
+    scope_main();
     
     
-    
+    */
     
     
     

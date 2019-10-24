@@ -26,7 +26,7 @@
 
 DEV dev = 0;                    //!< Device id
 int station_id;
-
+int nCh=4;
 
 void ls_get_station_id()
 {
@@ -235,40 +235,23 @@ int scope_read(int ioff)
 void scope_main()
 {
     printf("in ls_scope_main \n");
-    scope_open();
+    //scope_open();
     uint8_t buff[200];
     uint32_t length = sizeof(buff);
     
     printf("Getting control registers \n");
     
     unsigned short list_request=0x0C;
-    //unsigned short ctrllist[4]={0xC99,0x0006,0x66,0x66};
-    unsigned short ctrllist1[3]={0x0199,0x0006,0x6666};
-    unsigned short ctrllist2[3]={0x0299,0x0006,0x6666};
-    unsigned short ctrllist3[3]={0x0399,0x0006,0x6666};
-    unsigned short ctrllist4[3]={0x0499,0x0006,0x6666};
-    unsigned short ctrllist5[3]={0x0899,0x0006,0x6666};
-    unsigned short ctrllist6[3]={0x0999,0x0006,0x6666};
-    unsigned short ctrllist7[3]={0x0A99,0x0006,0x6666};
-    unsigned short ctrllist8[3]={0x0B99,0x0006,0x6666};
-    unsigned short ctrllist9[3]={0x0C99,0x0006,0x6666};
-    unsigned short ctrllist10[3]={0x0D99,0x0006,0x6666};
-
-    scope_set_parameters(ctrllist1,1);
-    scope_set_parameters(ctrllist2,1);
-    scope_set_parameters(ctrllist3,1);
-    scope_set_parameters(ctrllist4,1);
-    scope_set_parameters(ctrllist5,1);
-    scope_set_parameters(ctrllist6,1);
-    scope_set_parameters(ctrllist7,1);
-    scope_set_parameters(ctrllist8,1);
-    scope_set_parameters(ctrllist9,1);
-    scope_set_parameters(ctrllist10,1);
-
-    int ir;
+  
+    /*
+    scope_set_parameters(readout_window_params,1);
     int i;
-    usleep(500000);
-
+    for(i=0; i<nCh; i++){
+        scope_set_parameters(ch_property_params[i],1);
+        scope_set_parameters(ch_trigger_params[i],1);
+    }
+     */
+    /*
     for(i=0; i<15;i++){
         printf("________%d_______\n",i);
         //scope_set_parameters(ctrllist,1);
@@ -278,15 +261,18 @@ void scope_main()
         //read=scope_raw_read(&(buff),length);
         //printf("from buffer: %04x  %04x  %04x  %04x\n",buff[0],buff[1],buff[2],buff[3]);
         //usleep(100000);
+     
     }
-    
+     */
+     
+    /*
     for(i=0; i<PARAM_LIST_MAXSIZE; i++){
         printf("shadow: %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x, %04x\n",shadowlistR[1][i],shadowlistR[2][i],shadowlistR[3][i],shadowlistR[4][i],shadowlistR[8][i],shadowlistR[9][i],shadowlistR[10][i],shadowlistR[11][i],shadowlistR[12][i],shadowlistR[13][i]); //!< all parameters read from FPGA
     }
-     
+     */
     //scope_write((uint8_t *)ctrllist,sizeof(ctrllist));
     //usleep(1000);
-    scope_close();
+   // scope_close();
 
     
 }
