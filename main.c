@@ -10,9 +10,9 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <stdlib.h>
-//#include <time.h>
+#include <time.h>
 //#include <scopeFunctions.h>
-//#include "ad_shm.h"
+#include "ad_shm.h"
 #include "Scope.h"
 #include "Socket.h"
 
@@ -24,8 +24,8 @@ int dtime=2;
 
 
 
-//GPS_DATA *gpsbuf; //!< buffer to hold GPS information
-//shm_struct shm_gps; //!< shared memory containing all GPS info, including read/write pointers
+GPS_DATA *gpsbuf; //!< buffer to hold GPS information
+shm_struct shm_gps; //!< shared memory containing all GPS info, including read/write pointers
 
 //int sockfd, connfd;
 //struct sockaddr_in servaddr, cli;
@@ -46,6 +46,27 @@ int main(int argc,char **argv){
     
     struct socket_connection sock_listen;
     struct socket_connection sock_send;
+    
+    
+    if(ad_shm_create(&shm_gps,GPSSIZE,sizeof(GPS_DATA)/sizeof(uint16_t)) <0){ //ad_shm_create is in shorts!
+        printf("Cannot create GPS shared memory !!\n");
+        exit(-1);
+    }
+    printf("Created GPS shared memory \n");
+    
+    *(shm_gps.next_read) = 0;
+    *(shm_gps.next_write) = 0;
+    gpsbuf = (GPS_DATA *) shm_gps.Ubuf;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     time_t time1,time2 ;
     time1=time(NULL) ;
@@ -178,6 +199,8 @@ int main(int argc,char **argv){
     
     close(sock_send.sockfd);
     close(sock_listen.sockfd);
+    ad_shm_delete(&shm_gps);
+
 
     return 0;
 }

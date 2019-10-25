@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "Unit.h"
 #include "Socket.h"
+#include "ad_shm.h"
 
 #define MAX 200
 #define SA struct sockaddr

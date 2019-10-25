@@ -68,6 +68,40 @@
 #define ID_PARAM_NOP          0x66
 #define ID_PARAM_LORA          0x20
 
+#define ID_CH_BCNT            2 //bytecount will be 18
+#define ID_CH_GAIN            4
+#define ID_CH_OFFSET          6
+#define ID_CH_INTTIME         7
+#define ID_CH_BASEMAX         8
+#define ID_CH_BASEMIN        10
+#define ID_CH_PMV            12
+#define ID_CH_FILTER         13
+#define ID_CH_SPARE2         14
+#define ID_CH_END            16
+
+#define ID_TRIG_BCNT          2 //bytecount will be 18
+#define ID_TRIG_THR1          4
+#define ID_TRIG_THR2          6
+#define ID_TRIG_TPREV         8
+#define ID_TRIG_TPER          9
+#define ID_TRIG_TCMAX        10
+#define ID_TRIG_NCMAX        11
+#define ID_TRIG_NCMIN        12
+#define ID_TRIG_QMAX         13
+#define ID_TRIG_QMIN         14
+#define ID_TRIG_SPARE        15
+#define ID_TRIG_END          16
+
+#define ID_CTRL_BCNT          2 //bytecount will be 18
+#define ID_CTRL_CTRLREG       4
+#define ID_CTRL_TRMASK        6
+#define ID_CTRL_CHENABLE      8
+#define ID_CTRL_TRIGDIV       9
+#define ID_CTRL_COINCTIME    10
+#define ID_CTRL_SPARE1       12
+#define ID_CTRL_SPARE2       14
+#define ID_CTRL_END          16
+
 
 /* PPS definition */
 #define PPS_BCNT        2 //332 bytes
@@ -169,6 +203,19 @@ int Master_Port_No=3301 ;
 */
 
 
+
+typedef struct
+{
+    uint32_t ts_seconds;      //!< time marker in GPS sec
+    uint32_t CTP;             //!< clock ticks since previous time marker
+    uint32_t SCTP;            //!< clock ticks per second
+    int8_t sync;              //!< clock-edge of timestamp
+    float quant;              //!< deviation from true second
+    double clock_tick;        //!< time between clock ticks
+    uint16_t rate[4];         //!< event rate in one second for all channels
+    uint8_t buf[PPS_LENGTH];  //!< raw data buffer
+} GPS_DATA;
+
 int scope_open();
 void scope_close();
 void scope_write(uint8_t *buf, int32_t len) ;
@@ -177,3 +224,6 @@ int scope_raw_read(uint8_t *bf, int32_t size) ;
 int scope_read_error();
 int scope_read(int ioff);
 void scope_main();
+//int32_t scope_check_rates();
+int32_t scope_read_pps();
+
