@@ -10,11 +10,11 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include <FUNCTION_Sockets.h>
 //#include <time.h>
-#include <scopeFunctions.h>
+//#include <scopeFunctions.h>
 //#include "ad_shm.h"
-//#include "Scope.h"
+#include "Scope.h"
+#include "Socket.h"
 
 #define    PORT1    8002
 #define    PORT2    8003

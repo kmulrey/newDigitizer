@@ -143,6 +143,9 @@ uint16_t ch_trigger_params[4][LEN_CH_TRIGGER_PARAM];
 
 int ch_HV[4];
 
+
+
+void ls_get_station_id();
 /*
 typedef struct
 {
@@ -164,3 +167,13 @@ char* Master_Name="Master" ;
 char* Master_Serial_No="FTQZTB7R" ;
 int Master_Port_No=3301 ;
 */
+
+
+int scope_open();
+void scope_close();
+void scope_write(uint8_t *buf, int32_t len) ;
+void scope_set_parameters(uint16_t *data, int to_shadow);
+int scope_raw_read(uint8_t *bf, int32_t size) ;
+int scope_read_error();
+int scope_read(int ioff);
+void scope_main();
