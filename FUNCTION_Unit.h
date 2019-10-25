@@ -13,7 +13,7 @@
 //#include "scopeFunctions.h"
 #include "Scope.h"
 
-uint16_t list_id_ch[4]={0x099,0x0999,0x0A99,0x0B99};
+uint16_t list_id_ch[4]={0x0899,0x0999,0x0A99,0x0B99};
 uint16_t list_id_trigg[4]={0x0C99,0x0D99,0x0E99,0x0F99};
 
 void initialize_parameter_lists(){
@@ -69,8 +69,8 @@ void initialize_parameter_lists(){
 
 void build_property_ctrlist(char *buff, int32_t size){
     
-    printf("building control list %04x: \n",buff[1]);
-    printf("buffer size %d: \n",size);
+    //printf("building control list %04x: \n",buff[1]);
+    //printf("buffer size %d: \n",size);
 
     //unsigned short ctrllist1[9]={0x0899,0x0012,0x3fa9,0x007f,0x3e80,0x0000,0x0000,0x0000,0x6666};
     //uint8_t set_param_list[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE];
@@ -78,11 +78,11 @@ void build_property_ctrlist(char *buff, int32_t size){
     uint8_t i=buff[1];
     if(i==0x20){
         int ch=buff[2];
-        printf("ch: %d\n",ch);
+        //printf("ch: %d\n",ch);
         
        // ch_HV[ch]=i= buff[3] << 8 | buff[4];
         ch_HV[ch]= buff[3] << 8 | buff[4];
-        printf("          --> %d: \n",ch_HV[ch]);
+        //printf("          --> %d: \n",ch_HV[ch]);
         
         ch_property_params[ch][2]= buff[10] << 8 | buff[11];  // gain correction
         ch_property_params[ch][3]= buff[12] << 8 | buff[13];  // offset correction, integration time
@@ -153,8 +153,8 @@ void build_property_ctrlist(char *buff, int32_t size){
 
 void build_mode_ctrlist(char *buff, int32_t size){
     
-    printf("building mode param list %04x: \n",buff[1]);
-    printf("buffer size %d: \n",size);
+    //printf("building mode param list %04x: \n",buff[1]);
+    //printf("buffer size %d: \n",size);
     
     dig_mode_params[2]= buff[3] << 8 | buff[4]; // control register
     dig_mode_params[3]= buff[5] << 8 | buff[6]; // trigger enable mask

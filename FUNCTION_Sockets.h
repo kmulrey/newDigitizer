@@ -106,10 +106,10 @@ void func_read(int sockfd1)
         // read the message from client and copy it in buffer
         read(sockfd1, buff, sizeof(buff));
         // print buffer which contains the client contents
-        printf("From client: %s", buff);
+        //printf("From client: %s", buff);
         if ((strncmp(buff, "exit", 4)) == 0) {
             
-            printf("Client Exit...\n");
+            //printf("Client Exit...\n");
             break;
         }
         
@@ -120,33 +120,33 @@ void func_read(int sockfd1)
 
 int func_read_message(int sockfd1)
 {
-    printf("\n\n");
+    //printf("\n\n");
     int exit=0;
     char buff[MAX];
     bzero(buff, MAX);
     read(sockfd1, buff, sizeof(buff));
     //printf("size of received buffer: %d\n", sizeof(buff));
 
-    printf("From server: %x,  %x,  %x\n", buff[0],buff[1],buff[2]);
+    //printf("From server: %x,  %x,  %x\n", buff[0],buff[1],buff[2]);
     
     if(buff[0]!=0x99){
         printf("message header not recognized: %x\n",buff[0]);
     }
     if(buff[0]==0x99){
-        printf("start new message: %x\n",buff[0]);
-        printf("message type: %x\n",buff[1]);
+        //printf("start new message: %x\n",buff[0]);
+        //printf("message type: %x\n",buff[1]);
         if(buff[1]==0xaa){
             exit=1;
-            printf("received exit message\n");
+            //printf("received exit message\n");
         }
     }
     if(buff[1]==0x20){
-        printf("received parameter list\n",buff[0]);
+        //printf("received parameter list\n",buff[0]);
         build_property_ctrlist(buff,sizeof(buff));
     }
     
     if(buff[1]==0x21){
-        printf("received mode parameter list\n",buff[0]);
+        //printf("received mode parameter list\n",buff[0]);
         build_mode_ctrlist(buff,sizeof(buff));
     }
     

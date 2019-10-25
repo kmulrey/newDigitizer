@@ -11,13 +11,21 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <FUNCTION_Sockets.h>
-#include <time.h>
+//#include <time.h>
 #include <scopeFunctions.h>
-#include "Scope.h"
+//#include "ad_shm.h"
+//#include "Scope.h"
 
 #define    PORT1    8002
 #define    PORT2    8003
 int dtime=2;
+
+
+
+
+
+//GPS_DATA *gpsbuf; //!< buffer to hold GPS information
+//shm_struct shm_gps; //!< shared memory containing all GPS info, including read/write pointers
 
 //int sockfd, connfd;
 //struct sockaddr_in servaddr, cli;
@@ -61,15 +69,79 @@ int main(int argc,char **argv){
    // sleep(3000);
    // func_read(sock_listen.sockfd);
     func_read_message(sock_listen.sockfd);
-    printf("received control messages...\n");
+    //printf("received control messages...\n");
     func_read_message(sock_listen.sockfd);
-    printf("received control messages...\n");
+    //printf("received control messages...\n");
     func_read_message(sock_listen.sockfd);
-    printf("received control messages...\n");
+    //printf("received control messages...\n");
     func_read_message(sock_listen.sockfd);
-    printf("received control messages...\n");
+    //printf("received control messages...\n");
     func_read_message(sock_listen.sockfd);
-    printf("received control messages...\n");
+    //printf("received control messages...\n");
+    
+    int i;
+    
+    printf("mode parameters: {");
+    for(i=0;i<LEN_MODE_PARAM; i++){
+        printf("%x  ",dig_mode_params[i]);
+    }
+    printf("}\n");
+
+    printf("readout window: {");
+    for(i=0;i<LEN_READOUT_PARAM; i++){
+        printf("%x  ",readout_window_params[i]);
+    }
+    printf("}\n");
+    
+    printf("ch1 property params: {");
+    for(i=0;i<LEN_CH_PROPERTY_PARAM; i++){
+        printf("%x  ",ch_property_params[0][i]);
+    }
+    printf("}\n");
+    
+    printf("ch2 property params: {");
+    for(i=0;i<LEN_CH_PROPERTY_PARAM; i++){
+        printf("%x  ",ch_property_params[1][i]);
+    }
+    printf("}\n");
+    
+    printf("ch3 property params: {");
+    for(i=0;i<LEN_CH_PROPERTY_PARAM; i++){
+        printf("%x  ",ch_property_params[2][i]);
+    }
+    printf("}\n");
+    
+    printf("ch4 property params: {");
+    for(i=0;i<LEN_CH_PROPERTY_PARAM; i++){
+        printf("%x  ",ch_property_params[3][i]);
+    }
+    printf("}\n");
+    
+    printf("ch1 trigger params: {");
+    for(i=0;i<LEN_CH_TRIGGER_PARAM; i++){
+        printf("%x  ",ch_trigger_params[0][i]);
+    }
+    printf("}\n");
+    printf("ch2 trigger params: {");
+    for(i=0;i<LEN_CH_TRIGGER_PARAM; i++){
+        printf("%x  ",ch_trigger_params[1][i]);
+    }
+    printf("}\n");
+    printf("ch3 trigger params: {");
+    for(i=0;i<LEN_CH_TRIGGER_PARAM; i++){
+        printf("%x  ",ch_trigger_params[2][i]);
+    }
+    printf("}\n");
+    printf("ch4 trigger params: {");
+    for(i=0;i<LEN_CH_TRIGGER_PARAM; i++){
+        printf("%x  ",ch_trigger_params[3][i]);
+    }
+    printf("}\n");
+    
+
+    
+    
+    
     
     /*
     //exit=func_read_message(sock_listen.sockfd);
@@ -89,21 +161,17 @@ int main(int argc,char **argv){
          }
         //if (exit==1){break;}
     }
-    
+    */
     printf("starting scope related things......\n");
     
 
     
-    //ls_get_station_id();
+    ls_get_station_id();
 
     scope_main();
     
     
-    */
-    
-    
-    
-    
+
     
     
     

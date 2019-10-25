@@ -15,6 +15,9 @@
 		41848B99231EC2C600B9A86F /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
 		41848B9B231EC2C600B9A86F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		41848B9C231EC2C600B9A86F /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		41937DEE2362FBB600867792 /* ad_shm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ad_shm.h; sourceTree = "<group>"; };
+		41937DEF2362FE1200867792 /* ad_shm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ad_shm.c; sourceTree = "<group>"; };
+		41937DF02362FE3400867792 /* Adaq.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Adaq.h; sourceTree = "<group>"; };
 		41ACAD47233A082B00B8AA3B /* scopeFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scopeFunctions.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -23,8 +26,11 @@
 			isa = PBXGroup;
 			children = (
 				41848B9B231EC2C600B9A86F /* main.c */,
+				41937DEE2362FBB600867792 /* ad_shm.h */,
 				41ACAD47233A082B00B8AA3B /* scopeFunctions.h */,
 				414A68B523325AA400CB37D6 /* FUNCTION_Unit.h */,
+				41937DEF2362FE1200867792 /* ad_shm.c */,
+				41937DF02362FE3400867792 /* Adaq.h */,
 				414A68B4233258A500CB37D6 /* CLASS_Unit.h */,
 				414A68B2233257BC00CB37D6 /* Scope.h */,
 				414A68B02332553600CB37D6 /* CLASS_Sockets.h */,
