@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -43,12 +44,15 @@ void make_socket(socket_connection* sock){
 
 void connect_socket(socket_connection* sock)
 {
+    int x;
     
     if (connect(sock->sockfd, (SA*)&sock->servaddr, sizeof(sock->servaddr)) != 0) {
         printf("connection with the server failed...\n");
         exit(0);
     }
     else
+        x=fcntl(sock->sockfd,F_GETFL,0) ;        // Get socket flags
+        fcntl(sock->sockfd,F_SETFL,x | O_NONBLOCK) ;    // Add non-blocking flag
         printf("connected to the server..\n");
 }
 
@@ -123,7 +127,7 @@ int func_read_message(int sockfd1)
    // printf("\n\n    From server (%d): %x,  %x,  %x\n", sizeof(buff),buff[0],buff[1],buff[2]);
     
     if(buff[0]!=0x99){
-        printf("    message header not recognized: %x\n",buff[0]);
+        //printf("    message header not recognized: %x\n",buff[0]);
     }
     if(buff[0]==0x99){
         //printf("start new message: %x\n",buff[0]);
@@ -145,10 +149,6 @@ int func_read_message(int sockfd1)
     if(buff[1]==0x25){
         printf("    received finish message\n");
         end_param=1;
-    }
-    if(buff[0]==0){
-        printf("    problem reading: %x\n",buff[0]);
-        error_count=error_count+1;
     }
     
     bzero(buff, MAX);
@@ -190,4 +190,33 @@ int func_listen(int sockfd1)
     
     bzero(buff, MAX);
     return exit;
+}
+
+
+void send_dummy(int sockfd){
+    
+    char buff[MAX];
+    bzero(buff, sizeof(buff));
+    buff[0]=0x99;
+    //strncpy(buff, "dummy\n", sizeof buff - 1);
+    //printf("sent: %s", buff);
+
+    write(sockfd, buff, sizeof(buff));
+    bzero(buff, sizeof(buff));
+
+
+}
+
+void send_event(int sockfd){
+    
+    char buff[MAX];
+    bzero(buff, sizeof(buff));
+    buff[0]=0x99;
+    //strncpy(buff, "dummy\n", sizeof buff - 1);
+    printf("sent event\n");
+    
+    write(sockfd, buff, sizeof(buff));
+    bzero(buff, sizeof(buff));
+    
+    
 }

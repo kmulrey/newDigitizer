@@ -87,17 +87,18 @@ int main(int argc,char **argv){
     
     end_param=0;
     error_count=0;
-    int count=0;
+    int r=0;
+    
     func_write_auto(sock_send.sockfd);
 
-    while(end_param<1 && count<7){
+    while(end_param<1){
     
-        func_read_message(sock_listen.sockfd);
-        
+        r=func_read_message(sock_listen.sockfd);
+        //printf("%d\n",r);
         if(end_param==1){
             printf("received message to finish control messages\n");
         }
-        count++;
+        
         
     }
 

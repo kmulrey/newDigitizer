@@ -634,6 +634,29 @@ void scope_main()
     // scope_close();
     
     
+    sleep(2);
+    
+    /////////////// loop with main PC
+    
+    
+    int e=0;
+    int r=0;
+  // while(1){
+    for(e=0; e<8; e++){
+        send_event(sock_send.sockfd);
+        sleep(2);
+        r=func_read_message(sock_listen.sockfd);
+        if(r==1){
+            break;
+        }
+        //e=func_read_message(sock_listen.sockfd);
+    
+    
+    }
+    
+    printf("leaving scope\n",e);
+
+    
 }
 
 
