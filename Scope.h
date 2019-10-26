@@ -1,18 +1,13 @@
 #include <stdint.h>
 
-#define    Event_Bytes        12023        //Size of event data in bytes
-#define    ADC_Full_Scale_Low    2030        //ADC Full Scale low
-#define    ADC_Full_Scale_High    2060        //ADC Full Scale high
-#define    ADC_Off_Low        2047        //ADC Offset low
-#define    ADC_Off_High        2049        //ADC Offset high
-#define    ADC_Common_Off_Low    149        //ADC Common offset low (use for gain calib)
-#define    ADC_Common_Off_High    151        //ADC Common offset high (use for gain calib)
-#define    ADC_Gain_Low        149        //ADC Gain low
-#define    ADC_Gain_High        151        //ADC Gain high
-//Final common offset value is set such that the average ADC sum on each channel is within this range
-#define    Final_Common_Off_Low    16        //Final common offset value
-#define    Final_Common_Off_High    17        //Use for setting final common offset value
 
+/*----------------------------------------------------------------------*/
+#define SAMPLING_FREQ 200 //!< 200 MHz scope
+
+/*----------------------------------------------------------------------*/
+#define GPS_EPOCH_UNIX  315964800 //!< GPS to unix offst, not counting leap sec
+
+/* Message start / end flags */
 #define MSG_START    0x99 //!< start of fpga message
 #define MSG_END      0x66 //!< end of fpga message
 
@@ -26,7 +21,7 @@
 #define TIME_MIN        5
 #define TIME_SEC        6
 
-   
+
 /*----------------------------------------------------------------------*/
 /* Maxima / minima */
 
@@ -66,18 +61,47 @@
 #define ID_PARAM_EVENT        0xC0
 #define ID_PARAM_ERROR        0xCE
 #define ID_PARAM_NOP          0x66
-#define ID_PARAM_LORA          0x20
 
-#define ID_CH_BCNT            2 //bytecount will be 18
-#define ID_CH_GAIN            4
-#define ID_CH_OFFSET          6
-#define ID_CH_INTTIME         7
-#define ID_CH_BASEMAX         8
-#define ID_CH_BASEMIN        10
-#define ID_CH_PMV            12
-#define ID_CH_FILTER         13
-#define ID_CH_SPARE2         14
-#define ID_CH_END            16
+#define ID_GPS_BCNT           2 //wil be 46
+#define ID_GPS_VERSION        4
+#define ID_GPS_TIME           8
+#define ID_GPS_STATUS         15
+#define ID_GPS_LONG           16
+#define ID_GPS_LAT            24
+#define ID_GPS_ALT            32
+#define ID_GPS_TEMP           40
+#define ID_GPS_END            44
+
+#define ID_CTRL_BCNT          2 //bytecount will be 18
+#define ID_CTRL_CTRLREG       4
+#define ID_CTRL_TRMASK        6
+#define ID_CTRL_CHENABLE      8
+#define ID_CTRL_TRIGDIV       9
+#define ID_CTRL_COINCTIME    10
+#define ID_CTRL_SPARE1       12
+#define ID_CTRL_SPARE2       14
+#define ID_CTRL_END          16
+
+#define ID_WINDOWS_BCNT       2 //bytecount will be 22
+#define ID_WINDOWS_PRECH1     4
+#define ID_WINDOWS_POSTCH1    6
+#define ID_WINDOWS_PRECH2     8
+#define ID_WINDOWS_POSTCH2   10
+#define ID_WINDOWS_PRECH3    12
+#define ID_WINDOWS_POSTCH3   14
+#define ID_WINDOWS_PRECH4    16
+#define ID_WINDOWS_POSTCH4   18
+#define ID_WINDOWS_END       20
+
+#define ID_COMRES_BCNT        2 //bytecount will be 8
+#define ID_COMRES_CMD         4
+#define ID_COMRES_RES         5
+#define ID_COMRES_END         6
+
+#define ID_SPI_BCNT           2 //bytecount will be 8
+#define ID_SPI_ADDRESS        4
+#define ID_SPI_DATA           5
+#define ID_SPI_END            6
 
 #define ID_TRIG_BCNT          2 //bytecount will be 18
 #define ID_TRIG_THR1          4
@@ -92,17 +116,57 @@
 #define ID_TRIG_SPARE        15
 #define ID_TRIG_END          16
 
-#define ID_CTRL_BCNT          2 //bytecount will be 18
-#define ID_CTRL_CTRLREG       4
-#define ID_CTRL_TRMASK        6
-#define ID_CTRL_CHENABLE      8
-#define ID_CTRL_TRIGDIV       9
-#define ID_CTRL_COINCTIME    10
-#define ID_CTRL_SPARE1       12
-#define ID_CTRL_SPARE2       14
-#define ID_CTRL_END          16
+#define ID_CH_BCNT            2 //bytecount will be 18
+#define ID_CH_GAIN            4
+#define ID_CH_OFFSET          6
+#define ID_CH_INTTIME         7
+#define ID_CH_BASEMAX         8
+#define ID_CH_BASEMIN        10
+#define ID_CH_PMV            12
+#define ID_CH_FILTER         13
+#define ID_CH_SPARE2         14
+#define ID_CH_END            16
 
+#define ID_FILT_BCNT          2 //bytecount will be 22
+#define ID_FILT_A1            4
+#define ID_FILT_A2            6
+#define ID_FILT_B1            8
+#define ID_FILT_B2           10
+#define ID_FILT_B3           12
+#define ID_FILT_B4           14
+#define ID_FILT_B5           16
+#define ID_FILT_B6           18
+#define ID_FILT_END          20
 
+/*----------------------------------------------------------------------*/
+/* Control register bits */
+#define CTRL_SEND_EN    (1 << 0)
+#define CTRL_PPS_EN     (1 << 1)
+#define CTRL_FULLSCALE  (1 << 2)
+#define CTRL_FILTERREAD (1 << 3)
+#define CTRL_THRESHMODE (1 << 4)
+#define CTRL_GPS_PROG   (1 << 5)
+#define CTRL_FAKE_ADC   (1 << 6)
+#define CTRL_DCO_EDGE   (1 << 7)
+#define CTRL_FILTER1    (1 <<  8)
+#define CTRL_FILTER2    (1 <<  9)
+#define CTRL_FILTER3    (1 << 10)
+#define CTRL_FILTER4    (1 << 11)
+
+#define TRIG_POW      (1 << 3)
+#define TRIG_EXT      (1 << 4)
+#define TRIG_10SEC    (1 << 5)
+#define TRIG_CAL      (1 << 6)
+#define TRIG_CH1CH2   (1 << 7)
+
+// general aera event types
+#define SELF_TRIGGERED  0x0001
+#define EXT_EL_TRIGGER  0x0002
+#define CALIB_TRIGGER   0x0004
+#define EXT_T3_TRIGGER  0x0008  // by SD, Gui ...
+#define RANDOM_TRIGGER  0x0010
+
+/*----------------------------------------------------------------------*/
 /* PPS definition */
 #define PPS_BCNT        2 //332 bytes
 #define PPS_TIME        4
@@ -133,18 +197,109 @@
 #define PPS_END       318
 #define PPS_LENGTH    (320) //!< Total size of the PPS message
 
+/*----------------------------------------------------------------------*/
+/* Event definition */
+#define EVENT_BCNT        2 //bytecount
+#define EVENT_TRIGMASK    4
+#define EVENT_GPS         6
+#define EVENT_STATUS     13
+#define EVENT_CTD        14
+#define EVENT_LENCH1     18
+#define EVENT_LENCH2     20
+#define EVENT_LENCH3     22
+#define EVENT_LENCH4     24
+#define EVENT_THRES1CH1  26
+#define EVENT_THRES2CH1  28
+#define EVENT_THRES1CH2  30
+#define EVENT_THRES2CH2  32
+#define EVENT_THRES1CH3  34
+#define EVENT_THRES2CH3  36
+#define EVENT_THRES1CH4  38
+#define EVENT_THRES2CH4  40
+#define EVENT_CTRL       42
+#define EVENT_WINDOWS    54
+#define EVENT_ADC        70
 
+/*----------------------------------------------------------------------*/
+/* Error Definition */
+#define ERROR_BCNT 2
+#define ERROR_ID   4
+#define ERROR_END  6
+
+/*----------------------------------------------------------------------*/
+/* Calibration states */
+#define CAL_END         0
+#define CAL_OFFSET      1
+#define CAL_GAIN        2
+
+/* Calibration targets */
+#define CAL_OFFSET_TARG      0
+#define CAL_OFFSET_WIDTH     2
+
+#define CAL_OFFSET_OTARG      0
+#define CAL_OFFSET_OWIDTH     2
+
+#define CAL_GAIN_TARG      -7250
+#define CAL_GAIN_WIDTH      2
+
+#define CAL_GAIN_OTARG      -7000
+#define CAL_GAIN_OWIDTH      12
+
+/*----------------------------------------------------------------------*/
+/* Trigger rate divider base frequency */
+#define TRIG_RATE_BASE_HZ 4800  //!< maximal fpga generated trigger frequency
+
+/*----------------------------------------------------------------------*/
+/* Macros */
+#define FIRMWARE_VERSION(x) (10*((x>>20)&0xf)+((x>>16)&0xf)) //!< Calculation of Firmware version number
+#define FIRMWARE_SUBVERSION(x)   (10*((x>>12)&0xf)+((x>>9)&0x7)) //!< Calculation of subversion number
+#define SERIAL_NUMBER(x)    (100*((x>>8)&0x1)+10*((x>>4)&0xf)+((x>>0)&0xf)) //!< serial number of digital board
+#define ADC_RESOLUTION(x) (x>79 ? 14 : 12) //!< ADC resolution depends on board number
+/*
+ buffer definitions for the scope readout process.
+ */
+#define DEV_READ_BLOCK 100      //!< fpga Device read blocksize, in Bytes
+
+#define MAX_RATE 500            //!< maximum event rate, in Hz
+#define BUFSIZE 3000            //!< store up to 3000 events in circular buffer
+
+#define GPSSIZE 35              //!< buffer upto 35 GPS seconds info in circular buffer
+#define MAXT3 200               //!< 200 T3 events in circular cuffer
+
+// next: what did we read from the scope?
 
 #define SCOPE_PARAM 1          //!< return code for reading a parameter list
 #define SCOPE_EVENT 2          //!< return code for reading an event
 #define SCOPE_GPS   3          //!< return code for reading a PPS message
 
-
-#define GPSSIZE 35              //!< buffer upto 35 GPS seconds info in circular buffer
-#define GPS_EPOCH_UNIX  315964800 //!< GPS to unix offst, not counting leap sec
-
+#define PARAM_NUM_LIST 0x18     //!< Number of parameter lists for the fpga
+#define PARAM_LIST_MAXSIZE 22   //!< maximal listsize 22 bytes
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//___________________________________________________________
 
 #define LEN_MODE_PARAM 0x09
 #define LEN_READOUT_PARAM 0x0B
@@ -152,17 +307,6 @@
 #define LEN_CH_TRIGGER_PARAM 0x09
 
 
-
-
-
-
-/* Error Definition */
-#define ERROR_BCNT 2
-#define ERROR_ID   4
-#define ERROR_END  6
-
-#define PARAM_NUM_LIST 0x18     //!< Number of parameter lists for the fpga
-#define PARAM_LIST_MAXSIZE 22   //!< maximal listsize 22 bytes
 
 
 uint8_t shadowlist[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE];  //!< all parameters to set in FPGA
@@ -202,7 +346,21 @@ char* Master_Serial_No="FTQZTB7R" ;
 int Master_Port_No=3301 ;
 */
 
-
+typedef struct
+{
+    uint16_t event_nr;        //!< an event number
+    uint32_t ts_seconds;      //!< second marker
+    uint32_t t3calc;          //!< was the T3 time calculated (1/0)
+    uint32_t t3_nanoseconds;  //!< proper timing
+    uint32_t t2_nanoseconds;  //!< rough timing for t2 purposes only
+    uint32_t CTD;             //!< clock tick of the trigger
+    uint32_t evsize;          //!< size of the event
+    float quant1;             //!< quant error previous PPS
+    float quant2;             //!< quant error next PPS
+    uint32_t CTP;             //!< Number of clock ticks between PPS pulses
+    int16_t sync;             //!< Positive or Negative clock edge
+    uint8_t buf[MAX_READOUT]; //!< raw data buffer
+} EV_DATA;
 
 typedef struct
 {
@@ -216,6 +374,7 @@ typedef struct
     uint8_t buf[PPS_LENGTH];  //!< raw data buffer
 } GPS_DATA;
 
+
 int scope_open();
 void scope_close();
 void scope_write(uint8_t *buf, int32_t len) ;
@@ -223,7 +382,7 @@ void scope_set_parameters(uint16_t *data, int to_shadow);
 int scope_raw_read(uint8_t *bf, int32_t size) ;
 int scope_read_error();
 int scope_read(int ioff);
+int scope_read_event(int32_t ioff);
 void scope_main();
-//int32_t scope_check_rates();
 int32_t scope_read_pps();
-
+void scope_fill_ph(uint8_t *buf);

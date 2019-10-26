@@ -19,7 +19,7 @@
 
 
 
-void make_socket(struct socket_connection* sock){
+void make_socket(socket_connection* sock){
     // socket create and verification
     
     sock->sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -33,15 +33,15 @@ void make_socket(struct socket_connection* sock){
     
     // assign IP, PORT
     sock->servaddr.sin_family = AF_INET;
-    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.61.100");
-    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.99");
+    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.61.100");
+    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.99");
 
     sock->servaddr.sin_port = htons(sock->port);
     
 }
 
 
-void connect_socket(struct socket_connection* sock)
+void connect_socket(socket_connection* sock)
 {
     
     if (connect(sock->sockfd, (SA*)&sock->servaddr, sizeof(sock->servaddr)) != 0) {
@@ -119,9 +119,53 @@ int func_read_message(int sockfd1)
     char buff[MAX];
     bzero(buff, MAX);
     read(sockfd1, buff, sizeof(buff));
-    //printf("size of received buffer: %d\n", sizeof(buff));
 
-    //printf("From server: %x,  %x,  %x\n", buff[0],buff[1],buff[2]);
+   // printf("\n\n    From server (%d): %x,  %x,  %x\n", sizeof(buff),buff[0],buff[1],buff[2]);
+    
+    if(buff[0]!=0x99){
+        printf("    message header not recognized: %x\n",buff[0]);
+    }
+    if(buff[0]==0x99){
+        //printf("start new message: %x\n",buff[0]);
+        //printf("message type: %x\n",buff[1]);
+        if(buff[1]==0xaa){
+            exit=1;
+            //printf("received exit message\n");
+        }
+    }
+    if(buff[1]==0x20){
+        printf("    received parameter list %d\n",buff[2]);
+        build_property_ctrlist(buff,sizeof(buff));
+    }
+    
+    if(buff[1]==0x21){
+        printf("    received mode parameter list\n");
+        build_mode_ctrlist(buff,sizeof(buff));
+    }
+    if(buff[1]==0x25){
+        printf("    received finish message\n");
+        end_param=1;
+    }
+    if(buff[0]==0){
+        printf("    problem reading: %x\n",buff[0]);
+        error_count=error_count+1;
+    }
+    
+    bzero(buff, MAX);
+    return exit;
+}
+
+
+int func_listen(int sockfd1)
+{
+    //printf("\n\n");
+    int exit=0;
+    char buff[MAX];
+    bzero(buff, MAX);
+    read(sockfd1, buff, sizeof(buff));
+    printf("size of received buffer: %d\n", sizeof(buff));
+    
+    printf("From server: %x,  %x,  %x\n", buff[0],buff[1],buff[2]);
     
     if(buff[0]!=0x99){
         printf("message header not recognized: %x\n",buff[0]);
@@ -135,12 +179,12 @@ int func_read_message(int sockfd1)
         }
     }
     if(buff[1]==0x20){
-        //printf("received parameter list\n",buff[0]);
+        printf("received parameter list\n",buff[0]);
         build_property_ctrlist(buff,sizeof(buff));
     }
     
     if(buff[1]==0x21){
-        //printf("received mode parameter list\n",buff[0]);
+        printf("received mode parameter list\n",buff[0]);
         build_mode_ctrlist(buff,sizeof(buff));
     }
     

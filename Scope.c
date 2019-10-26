@@ -19,6 +19,9 @@
 #include "time.h"
 #include "ad_shm.h"
 #include "Scope.h"
+#include "Socket.h"
+
+
 
 #define DEVFILE "/dev/scope" //!< Device for talking to the FPGA
 #define DEV int32_t //!< the type of the device id is really just a 32 bit integer
@@ -44,10 +47,22 @@ int nCh=4;
 #define MEANSRATE (50*UPDATESEC)       //!< mean scintillator rate
 #define MAXSRATE (80*UPDATESEC)        //!< max scintillator rate
 
-extern shm_struct shm_gps;
-//extern EV_DATA *eventbuf;      // buffer to hold the events
+
+
+extern shm_struct shm_ev,shm_gps;
+//extern EV_DATA *eventbuf1;      // buffer to hold the events
 extern GPS_DATA *gpsbuf;
-//GPS_DATA *gpsbuf;
+extern EV_DATA *gpsbuf2;
+
+extern socket_connection sock_listen;
+extern socket_connection sock_send;
+
+
+//socket_connection sock_listen1;
+//socket_connection sock_send2;
+
+
+
 int32_t tenrate[4]={0,0,0,0};  //!< rate of all channels, to be checked every "UPDATESEC" seconds
 int32_t pheight[4]={0,0,0,0};  //!< summed pulseheight of all channels
 int32_t n_events[4]={0,0,0,0}; //!< number of events contributing to summed pulse height
@@ -192,7 +207,6 @@ int scope_read_error()
     printf("\n");
     return(1);
 }
-
 int scope_read(int ioff)
 {
     unsigned short int totlen;
@@ -225,7 +239,7 @@ int scope_read(int ioff)
         printf("Failed to read a second word\n");
         return(-2);                     // No identifier after start-of-message
     }
-    printf("rawbuf[1] = %x\n",rawbuf[1]);
+    //printf("rawbuf[1] = %x\n",rawbuf[1]);
     
     
     if(rawbuf[1]<PARAM_NUM_LIST){
@@ -256,19 +270,25 @@ int scope_read(int ioff)
     
     else if(rawbuf[1] == ID_PARAM_PPS) {
         ir = scope_read_pps(ioff);
+        //printf("raw buff: %x\n",rawbuf[2]);
+
+        //scope_calc_evnsec();
         return(ir);
     }
     else if(rawbuf[1] == ID_PARAM_EVENT)
     {
         printf("----->EVENT!!!! \n");
-        //return(scope_read_event(ioff));
+        //printf("raw buff: %x\n",rawbuf[2]);
+
+        return(scope_read_event(ioff));
         
     }
-    else if(rawbuf[1] == ID_PARAM_ERROR){ return(scope_read_error(ioff));
-        printf("ERROR Identifier = %x\n",rawbuf[1]);
-        return(-3);         }                      // bad identifier read
+    //else if(rawbuf[1] == ID_PARAM_ERROR) return(scope_read_error(ioff));
+   // printf("ERROR Identifier = %x\n",rawbuf[1]);
+  //  return(-3);
+    else{// bad identifier read
+        return 0;}
 }
-
 
 
 /*!
@@ -286,7 +306,8 @@ int scope_read(int ioff)
      float *fp;
      unsigned short ppsrate;
      int32_t prevgps;
- 
+     //printf("%x\n",gpsbuf[0]);
+
      nread = 2;                                    // again, already 2 bytes read!
      ntry = 0;
      //printf("------>in here\n");
@@ -301,7 +322,7 @@ int scope_read(int ioff)
         else {ntry = 0;nread+=rread;}
      }while(nread <(PPS_LENGTH) &&ntry<MAXTRY);    // until the end or a timeout
      leap_sec = (int)(*(unsigned short *)&gpsbuf[evgps].buf[PPS_FLAGS]);
-     printf("SCOPE_READ_PPS %d\n",tp.tv_sec);
+     //printf("SCOPE_READ_PPS %d\n",tp.tv_sec);
      
      
      for(i=0;i<4;i++) {
@@ -352,7 +373,7 @@ int scope_read(int ioff)
      //gpsbuf[evgps].ts_seconds -= leap_sec;
      //printf("PPS Time stamp = %d (%d)\n",gpsbuf[evgps].ts_seconds,GPS_EPOCH_UNIX);
      // time in GPS epoch CT 20110630 FIXED Number
-    gpsbuf[evgps].CTP = (*(int *)&gpsbuf[evgps].buf[PPS_CTP])&0x7fffffff; //ok 25/7/2012
+     gpsbuf[evgps].CTP = (*(int *)&gpsbuf[evgps].buf[PPS_CTP])&0x7fffffff; //ok 25/7/2012
      gpsbuf[evgps].sync =(gpsbuf[evgps].buf[PPS_CTP]>>7)&0x1;
         // for 2.5 ns accuracy, get the clock-edge
      gpsbuf[evgps].quant = *(float *)(&gpsbuf[evgps].buf[PPS_QUANT]);
@@ -373,7 +394,7 @@ int scope_read(int ioff)
      (gpsbuf[prevgps].quant-gpsbuf[evgps].quant)/gpsbuf[prevgps].clock_tick;
      // corrected number of clock ticks/second
      
-     
+     //printf("clock ticks: %d\n",gpsbuf[prevgps].CTP);
      
      *(shm_gps.next_read) = evgps;
      //if ((tt.tm_sec%UPDATESEC) == 0) scope_check_rates(); // check rates every 10 seconds
@@ -399,37 +420,209 @@ int scope_read(int ioff)
      return(SCOPE_GPS);
  }
 
+/*!
+ \func void scope_fill_ph(uint8_t *buf)
+ \brief for each channel add to the summed pulse height, also add to the number of events
+ */
+void scope_fill_ph(uint8_t *buf)
+{
+    int32_t i,istart,iend,iadc,len[4];
+    int16_t sb;
+    int16_t vmax=-8100;
+    int16_t vmin = 8100;
+    
+    for(i=0;i<4;i++) {
+        len[i] = *(short *)&buf[EVENT_LENCH1+2*i];
+    }
+    istart = EVENT_ADC;
+    for(i=0;i<4;i++){
+        vmax = -8100;
+        vmin = 8100;
+        iend = istart+2*len[i];
+        for(iadc=istart;iadc<iend;iadc+=2) {
+            sb = *(short *)&buf[iadc];
+            if(sb>vmax) vmax = sb;
+            if(sb<vmin) vmin = sb;
+        }
+        // printf("Channel %d, Start %d End %d (%d %d)\n",i+1,istart,iend,vmax,vmin);
+        if(vmax>vmin){
+            pheight[i]+=(vmax-vmin);
+            n_events[i] +=1;
+        }
+        istart = iend;
+    }
+}
+
+
+int scope_read_event(int32_t ioff)
+{
+    int32_t rread,nread,ntry;
+    struct tm tt;
+    int32_t prevgps;
+    uint16_t length;
+    int next_write = *(shm_ev.next_write);
+    //printf("next write: %d\n",next_write);
+    //printf("%d\n",gpsbuf2[0]);
+
+    gpsbuf2[next_write].buf[0] = MSG_START;
+    gpsbuf2[next_write].buf[1] = ID_PARAM_EVENT;
+
+   // eventbuf[next_write].buf[0] = MSG_START;
+    
+    
+    //eventbuf[next_write].buf[1] = ID_PARAM_EVENT;
+    
+     
+    scope_raw_read(&(gpsbuf2[next_write].buf[2]),2);
+    
+    nread = 4; // length andA4 words
+    length = *(unsigned short *)&(gpsbuf2[next_write].buf[2]);
+    
+    if(length>MAX_READOUT) return(-10); // too long
+    ntry = 0;
+    
+    do{            //while absolutely needed as blocks are read out
+        rread = scope_raw_read(&(gpsbuf2[next_write].buf[nread]),length-nread);
+        if(!rread) { usleep(10); ntry++; }
+        else {ntry = 0; nread+=rread;}
+    }while(nread <length &&ntry<MAXTRY);              // until the end or timeout
+    if(nread < length) {
+        printf("nread = %d length = %d rread = %d errno = %d\n",nread,length,rread,errno);
+        return(-11); // an error if not all is read
+    }
+    
+    gpsbuf2[next_write].evsize = (gpsbuf2[next_write].buf[EVENT_BCNT]+(gpsbuf2[next_write].buf[EVENT_BCNT+1]<<8)); //the total length in bytes from scope
+    //scope_print_event(gpsbuf2[next_write].buf);  // can be commented
+    
+    
+    //scope_send_event_katie(eventbuf[next_write].buf); //katie
+    
+    
+    
+    scope_fill_ph(gpsbuf2[next_write].buf);
+    tt.tm_sec = gpsbuf2[next_write].buf[EVENT_GPS+6];    // Convert GPS in a number of seconds
+    tt.tm_min = gpsbuf2[next_write].buf[EVENT_GPS+5];
+    tt.tm_hour = gpsbuf2[next_write].buf[EVENT_GPS+4];
+    tt.tm_mday = gpsbuf2[next_write].buf[EVENT_GPS+3];
+    tt.tm_mon = gpsbuf2[next_write].buf[EVENT_GPS+2]-1;
+    tt.tm_year = *(short *)&(gpsbuf2[next_write].buf[EVENT_GPS]) - 1900;
+    gpsbuf2[next_write].ts_seconds = (unsigned int)timegm(&tt);
+    // Timestamp in Unix format
+    // Convert UNIX time to GPS time in v3
+    // NOTE: difftime() is apparently broken in this uclibc
+    gpsbuf2[next_write].ts_seconds -= (unsigned int)GPS_EPOCH_UNIX;
+    //eventbuf[next_write].ts_seconds -= leap_sec;
+    // time in GPS epoch CT 20110630 fixed number!
+    gpsbuf2[next_write].CTD = *(int *)&(gpsbuf2[next_write].buf[EVENT_CTD]);
+    // fill the clock tick of the event
+    prevgps = evgps-1;    // from the previous GPS get a first guess of the event time
+    if(prevgps<0) prevgps = GPSSIZE-1;
+    prevgps = prevgps-1;  // from the previous GPS get a first guess of the event time
+    if(prevgps<0) prevgps = GPSSIZE-1;    //SHOULD IT BE TWICE (I think so)
+    gpsbuf2[next_write].t2_nanoseconds = gpsbuf[prevgps].clock_tick*gpsbuf2[next_write].CTD;
+    gpsbuf2[next_write].t3_nanoseconds = 0;  // the real time is not (yet) known
+    gpsbuf2[next_write].t3calc = 0;          // and has not yet been calculated
+    // and the trigger setting in gpsdata
+    if((gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]&0x1)!=0) gpsbuf[evgps].rate[0] ++;
+    if((gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]&0x2)!=0) gpsbuf[evgps].rate[1] ++;
+    if((gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]&0x4)!=0) gpsbuf[evgps].rate[2] ++;
+    if((gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]&0x8)!=0) gpsbuf[evgps].rate[3] ++;
+    //
+    
+    if(gpsbuf[prevgps].clock_tick != 0 &&
+       gpsbuf2[next_write].t2_nanoseconds != -1) {
+        next_write +=ioff;   // update the buffer counter if needed
+    }
+    
+    if(next_write>=BUFSIZE) next_write = 0;       // remember: eventbuf is a circular buffer
+    *(shm_ev.next_write) = next_write;
+    
+    
+    return(SCOPE_EVENT);                  // success!
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void scope_main()
 {
-    scope_open();
+    //scope_open();
     uint8_t buff[200];
     uint32_t length = sizeof(buff);
     
+  
+   
+    
     
     unsigned short list_request=0x0C;
+    int i;
     
+    /*
     scope_set_parameters(dig_mode_params,1);
     scope_set_parameters(readout_window_params,1);
     
-    int i;
+    
     for(i=0; i<nCh; i++){
         scope_set_parameters(ch_property_params[i],1);
         scope_set_parameters(ch_trigger_params[i],1);
     }
-    
-    
-    for(i=0; i<7;i++){
+     */
+
+    //printf("%d\n",sizeof(eventbuf1[0].buf[0]));
+    //printf("%d\n",sizeof(gpsbuf[0]));
+    //eventbuf = (EV_DATA *) shm_ev.Ubuf;
+
+    /*
+    for(i=0; i<25;i++){
         printf("________%d_______\n",i);
         
-        scope_read(1);
-        //ir =read(dev, (void *)buff, sizeof(buff));
-        //read=scope_raw_read(&(buff),length);
-        //printf("from buffer: %04x  %04x  %04x  %04x\n",buff[0],buff[1],buff[2],buff[3]);
-        //usleep(100000);
-        
+        //scope_read(1);
+    }
+    */
+    /*
+    printf("event number: %d \n",gpsbuf2[0].event_nr);
+    printf("event number: %d \n",gpsbuf2[1].event_nr);
+    
+    printf("event size: %d \n",gpsbuf2[0].evsize);
+    printf("event size: %d \n",gpsbuf2[1].evsize);
+
+    
+    printf("event CTD: %d \n",gpsbuf2[0].CTD);
+    printf("event CTD: %d \n",gpsbuf2[1].CTD);
+    
+    printf("event buff 1,2,3: %d  %d  %d \n",gpsbuf2[0].buf[0],gpsbuf2[0].buf[1],gpsbuf2[0].buf[10]);
+    printf("event buff 1,2,3: %d  %d  %d  \n",gpsbuf2[1].buf[0],gpsbuf2[1].buf[1],gpsbuf2[1].buf[10]);
+    */
+    /*
+    FILE *fptr;
+    fptr=fopen("test3.txt","w");
+    
+    for(i=0; i<MAX_READOUT; i++){
+        fprintf(fptr,"%x\n",gpsbuf2[8].buf[i]);
     }
     
+    
+    
+    fclose(fptr);
+     */
     
     /*
      for(i=0; i<PARAM_LIST_MAXSIZE; i++){

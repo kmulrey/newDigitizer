@@ -11,7 +11,6 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <time.h>
-//#include <scopeFunctions.h>
 #include "ad_shm.h"
 #include "Scope.h"
 #include "Socket.h"
@@ -20,19 +19,17 @@
 #define    PORT2    8003
 int dtime=2;
 
-
-
-
-
-GPS_DATA *gpsbuf; //!< buffer to hold GPS information
+shm_struct shm_ev; //!< shared memory containing all event info, including read/write pointers
 shm_struct shm_gps; //!< shared memory containing all GPS info, including read/write pointers
 
-//int sockfd, connfd;
-//struct sockaddr_in servaddr, cli;
+//EV_DATA *eventbuf1;  //!< buffer that holds all triggered events (points to shared memory)
+GPS_DATA *gpsbuf; //!< buffer to hold GPS information
+EV_DATA *gpsbuf2; //!< buffer to hold GPS information
 
 
 
-
+socket_connection sock_listen;
+socket_connection sock_send;
 
 
 //int sock=0, valread;
@@ -44,34 +41,39 @@ shm_struct shm_gps; //!< shared memory containing all GPS info, including read/w
 
 int main(int argc,char **argv){
     
-    struct socket_connection sock_listen;
-    struct socket_connection sock_send;
+
+    /*
+    if(ad_shm_create(&shm_ev,BUFSIZE,sizeof(EV_DATA)/sizeof(uint16_t)) <0){ //ad_shm_create is in shorts!
+        printf("Cannot create EVENT shared memory !!\n");
+        exit(-1);
+    }
+    printf("Created EVENT shared memory \n");
     
     
+
     if(ad_shm_create(&shm_gps,GPSSIZE,sizeof(GPS_DATA)/sizeof(uint16_t)) <0){ //ad_shm_create is in shorts!
         printf("Cannot create GPS shared memory !!\n");
         exit(-1);
     }
     printf("Created GPS shared memory \n");
     
+    
     *(shm_gps.next_read) = 0;
     *(shm_gps.next_write) = 0;
+    gpsbuf2 = (EV_DATA *) shm_ev.Ubuf;
+
     gpsbuf = (GPS_DATA *) shm_gps.Ubuf;
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    //gpsbuf2 = (EV_DATA *) shm_ev.Ubuf;
+     */
+
+
     
     
     time_t time1,time2 ;
     time1=time(NULL) ;
     printf("start time: %d\n",time1);
     int exit=0;
+    
     
     initialize_parameter_lists();
     //printf("checking initialization: %04x\n",ch_property_params[0][0]);
@@ -83,23 +85,22 @@ int main(int argc,char **argv){
     make_socket(&sock_listen);
     connect_socket(&sock_listen);
     
-    
-    
+    end_param=0;
+    error_count=0;
+    int count=0;
     func_write_auto(sock_send.sockfd);
 
-   // sleep(3000);
-   // func_read(sock_listen.sockfd);
-    func_read_message(sock_listen.sockfd);
-    //printf("received control messages...\n");
-    func_read_message(sock_listen.sockfd);
-    //printf("received control messages...\n");
-    func_read_message(sock_listen.sockfd);
-    //printf("received control messages...\n");
-    func_read_message(sock_listen.sockfd);
-    //printf("received control messages...\n");
-    func_read_message(sock_listen.sockfd);
-    //printf("received control messages...\n");
+    while(end_param<1 && count<7){
     
+        func_read_message(sock_listen.sockfd);
+        
+        if(end_param==1){
+            printf("received message to finish control messages\n");
+        }
+        count++;
+        
+    }
+
     int i;
     
     printf("mode parameters: {");
@@ -159,39 +160,19 @@ int main(int argc,char **argv){
     }
     printf("}\n");
     
-
     
     
-    
-    
-    /*
-    //exit=func_read_message(sock_listen.sockfd);
-    //exit=func_read_message(sock_listen.sockfd);
-    //exit=func_read_message(sock_listen.sockfd);
-
-    while(exit!=1)
-    {
-        exit=func_read_message(sock_listen.sockfd);
-        usleep(1000) ;
-        time2=time(NULL) ;
-        if((time2-time1)>=dtime)
-        {
-          time1=time(NULL) ;
-        printf("reset time\n");
-
-         }
-        //if (exit==1){break;}
-    }
-    */
+  
     printf("starting scope related things......\n");
     
 
     
-    ls_get_station_id();
+    //ls_get_station_id();
 
     scope_main();
     
     
+    //printf("out of main!\n");
 
     
     
@@ -199,7 +180,9 @@ int main(int argc,char **argv){
     
     close(sock_send.sockfd);
     close(sock_listen.sockfd);
-    ad_shm_delete(&shm_gps);
+    //ad_shm_delete(&shm_gps);
+    //ad_shm_delete(&shm_ev);
+    printf("clean exit... yay!\n");
 
 
     return 0;

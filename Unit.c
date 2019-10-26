@@ -79,8 +79,9 @@ void build_property_ctrlist(char *buff, int32_t size){
     uint8_t i=buff[1];
     if(i==0x20){
         int ch=buff[2];
+ 
         //printf("ch: %d\n",ch);
-        
+
        // ch_HV[ch]=i= buff[3] << 8 | buff[4];
         ch_HV[ch]= buff[3] << 8 | buff[4];
         //printf("          --> %d: \n",ch_HV[ch]);
@@ -90,8 +91,8 @@ void build_property_ctrlist(char *buff, int32_t size){
         ch_property_params[ch][4]= buff[14] << 8 | buff[15];   // base max
         ch_property_params[ch][5]= buff[16] << 8 | buff[17];  // base min
  
-        readout_window_params[4*(ch+1)+0]=buff[6] << 8 | buff[7];
-        readout_window_params[4*(ch+1)+1]=buff[8] << 8 | buff[9];
+        readout_window_params[2*(ch)+1]=buff[6] << 8 | buff[7];
+        readout_window_params[2*(ch)+2]=buff[8] << 8 | buff[9];
         
         
         ch_trigger_params[ch][2]= buff[18] << 8 | buff[19];    // signal threshold T1
@@ -104,49 +105,7 @@ void build_property_ctrlist(char *buff, int32_t size){
     }
     
 
-    /*
-    printf("%04x: header\n",buff[0]);
-    printf("%04x: type (params)\n",buff[1]);
-    printf("%04x: channel\n",buff[2]);
-    printf("%04x: none\n",buff[3]);
     
-    printf("%04x: threshold 0\n",buff[4]);
-    printf("%04x: threshold 1\n",buff[5]);
-    int i= buff[4] << 8 | buff[5];
-    printf("          --> %08x: \n",i);
-    printf("          --> %d: \n",i);
-
-
-    printf("%04x: HV 0\n",buff[6]);
-    printf("%04x: HV 1\n",buff[7]);
-    i= buff[6] << 8 | buff[7];
-    printf("          --> %08x: \n",i);
-    printf("          --> %d: \n",i);
-    
-    printf("%04x: trigger 0\n",buff[8]);
-    printf("%04x: trigger 1\n",buff[9]);
-    i= buff[8] << 8 | buff[9];
-    printf("          --> %08x: \n",i);
-    printf("          --> %d: \n",i);
-    
-    printf("%04x: pre-coin time 0\n",buff[10]);
-    printf("%04x: pre-coin time 1\n",buff[11]);
-    i= buff[10] << 8 | buff[11];
-    printf("          --> %08x: \n",i);
-    printf("          --> %d: \n",i);
-    
-    printf("%04x: coin time 0\n",buff[12]);
-    printf("%04x: coin time 1\n",buff[13]);
-    i= buff[12] << 8 | buff[13];
-    printf("          --> %08x: \n",i);
-    printf("          --> %d: \n",i);
-    
-    printf("%04x: post-coin time 0\n",buff[14]);
-    printf("%04x: post-coin time 1\n",buff[15]);
-    i= buff[14] << 8 | buff[15];
-    printf("          --> %08x: \n",i);
-    printf("          --> %d: \n",i);
-    */
     
 
 }
