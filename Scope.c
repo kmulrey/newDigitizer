@@ -544,7 +544,58 @@ int scope_read_event(int32_t ioff)
 
 
 
-
+void read_fake_file(char *name){
+    printf("opening file:   %s\n",name);
+    
+    
+    FILE *fptr;
+    fptr=fopen(name,"r");
+    
+    if(fptr == NULL) {
+        printf("Unable to open file!");
+    }
+    
+    
+    char buffer[255];
+    
+    int len=0;
+    uint8_t one;
+    uint8_t two;
+    uint8_t three;
+    int end=0;
+    
+    int k=0;
+    while(fgets(buffer, 255, (FILE*) fptr)&& k<MAX_READOUT) {
+        fake_event[k]=0;
+        len = strlen(buffer);
+        if( buffer[len-1] == '\n' ){
+            buffer[len-1] = 0;}
+        
+        uint8_t x;
+        
+        sscanf(buffer, "%x", &x);
+        fake_event[k]=x;
+        if(k==0){one=x;}
+        if(k==1){two=x;}
+        if(k==2){three=x;}
+        
+        if(x==102){
+            //printf("-->%x\n", fake_event[k]);
+            end=k;
+        }
+        k++;
+    }
+    
+    fake_event[0]=one;
+    fake_event[1]=two;
+    fake_event[2]=three;
+    
+    fclose(fptr);
+    
+    
+    
+    
+}
 
 
 
@@ -638,11 +689,17 @@ void scope_main()
     
     /////////////// loop with main PC
     
+  
+    char filename[]="test_data/test1.txt";
+    read_fake_file(filename);
+    
+
+
     
     int e=0;
     int r=0;
   // while(1){
-    for(e=0; e<8; e++){
+    for(e=0; e<1; e++){
         send_event(sock_send.sockfd);
         sleep(2);
         r=func_read_message(sock_listen.sockfd);
@@ -654,9 +711,11 @@ void scope_main()
     
     }
     
-    printf("leaving scope\n",e);
+    printf("leaving scope\n");
 
     
 }
+
+
 
 

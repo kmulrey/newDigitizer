@@ -14,6 +14,7 @@
 #include "Unit.h"
 #include "Socket.h"
 #include "ad_shm.h"
+#include "Scope.h"
 
 #define MAX 200
 #define SA struct sockaddr
@@ -209,14 +210,14 @@ void send_dummy(int sockfd){
 
 void send_event(int sockfd){
     
-    char buff[MAX];
-    bzero(buff, sizeof(buff));
-    buff[0]=0x99;
+    //char buff[MAX];
+    //bzero(buff, sizeof(buff));
+    //buff[0]=0x99;
     //strncpy(buff, "dummy\n", sizeof buff - 1);
-    printf("sent event\n");
+    printf("sent event: %x   %d\n",fake_event[0],sizeof(fake_event));
     
-    write(sockfd, buff, sizeof(buff));
-    bzero(buff, sizeof(buff));
+    write(sockfd, fake_event, sizeof(fake_event));
+    //bzero(buff, sizeof(buff));
     
     
 }

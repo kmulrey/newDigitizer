@@ -386,3 +386,5 @@ int scope_read_event(int32_t ioff);
 void scope_main();
 int32_t scope_read_pps();
 void scope_fill_ph(uint8_t *buf);
+uint8_t fake_event[MAX_READOUT];
+void read_fake_file(char* name);
