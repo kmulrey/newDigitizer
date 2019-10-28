@@ -272,18 +272,46 @@ int scope_read(int ioff)
         ir = scope_read_pps(ioff);
         //printf("raw buff: %x\n",rawbuf[2]);
         printf("----->PPS \n");
+        if(evgps>0){
+            //printf("gps number:    %lu\n",sizeof(gpsbuf[evgps-1].buf));
+            Write_Data(sock_send.sockfd,gpsbuf[evgps-1].buf,sizeof(gpsbuf[evgps-1].buf));
 
+        }
+        
+        
+        
+        
+        
+        
         //scope_calc_evnsec();
+       // printf("          %x\n",gpsbuf[evgps].buf[2]);
+        //gpsbuf[evgps]
         return(ir);
     }
     else if(rawbuf[1] == ID_PARAM_EVENT)
     {
+        ir=scope_read_event(ioff);
         printf("----->EVENT!!!! \n");
+        //Write_Data(sock_send.sockfd,rawbuf);
+        if(*(shm_ev.next_write)>0){
+           // printf("event number:    %d  %x  %x  %x\n",*(shm_ev.next_write),gpsbuf2[*(shm_ev.next_write)-1].buf[0],gpsbuf2[*(shm_ev.next_write)-1].buf[1],gpsbuf2[*(shm_ev.next_write)-1].buf[2]);
+            Write_Data(sock_send.sockfd,gpsbuf2[*(shm_ev.next_write)-1].buf,sizeof(gpsbuf2[*(shm_ev.next_write)-1].buf));
+            
+        }
+        
         //printf("raw buff: %x\n",rawbuf[2]);
 
-        return(scope_read_event(ioff));
+        return(ir);
         
     }
+    
+    
+    
+    
+    
+    
+    
+    
     //else if(rawbuf[1] == ID_PARAM_ERROR) return(scope_read_error(ioff));
    // printf("ERROR Identifier = %x\n",rawbuf[1]);
   //  return(-3);
@@ -312,9 +340,10 @@ int scope_read(int ioff)
      nread = 2;                                    // again, already 2 bytes read!
      ntry = 0;
      //printf("------>in here\n");
-     //printf("........%x\n",gpsbuf[0]);
      gpsbuf[evgps].buf[0] = MSG_START;
      gpsbuf[evgps].buf[1] = ID_PARAM_PPS;
+     //printf("........%x\n",gpsbuf[evgps].buf[0]);
+
      gettimeofday(&tp,NULL);
      
      do{                                           // now read the remainder
@@ -325,12 +354,13 @@ int scope_read(int ioff)
      leap_sec = (int)(*(unsigned short *)&gpsbuf[evgps].buf[PPS_FLAGS]);
      //printf("SCOPE_READ_PPS %d\n",tp.tv_sec);
      
-     
+     /*
      for(i=0;i<4;i++) {
          if(n_events[i]>0) printf("%d ",pheight[i]/n_events[i]);
         pheight[i] = 0;
          n_events[i] = 0;
      }
+      */
      printf("\n");
      if((*(short *)&(gpsbuf[evgps].buf[PPS_RATE])) == 0) {
          seczero ++;
@@ -372,7 +402,7 @@ int scope_read(int ioff)
      // NOTE: difftime() is apparently broken in this uclibc
      gpsbuf[evgps].ts_seconds -= (unsigned int)GPS_EPOCH_UNIX;
      //gpsbuf[evgps].ts_seconds -= leap_sec;
-     //printf("PPS Time stamp = %d (%d)\n",gpsbuf[evgps].ts_seconds,GPS_EPOCH_UNIX);
+     printf("PPS Time stamp = %d (%d)\n",gpsbuf[evgps].ts_seconds,GPS_EPOCH_UNIX);
      // time in GPS epoch CT 20110630 FIXED Number
      gpsbuf[evgps].CTP = (*(int *)&gpsbuf[evgps].buf[PPS_CTP])&0x7fffffff; //ok 25/7/2012
      gpsbuf[evgps].sync =(gpsbuf[evgps].buf[PPS_CTP]>>7)&0x1;
@@ -692,22 +722,50 @@ void scope_main()
     
     int c1=0;
     int r;
+    unsigned char buff0[100];
+    bzero(buff, sizeof(buff));
+    buff0[0]=0;//x99;
+    struct timeval stop, start;
+    float dur=0;
+
+    gettimeofday(&start, NULL);
+    
     while(1){
 
         scope_read(1);
 
         
         // sleep(1);
-        send_event(sock_send.sockfd);
+
+        //Write_Data(sock_send.sockfd,buff0);
         r=func_read_message(sock_listen.sockfd);
         if(r==1){
+            printf("got message to break\n");
+            break;
+            
+        }
+        
+        
+        /////////////////////////// manage loop ///////////////////////////
+        c1++;
+        gettimeofday(&stop, NULL);
+        dur= (double) (stop.tv_sec - start.tv_sec) * 1000 + (double) (stop.tv_usec - start.tv_usec) / 1000;
+        
+        if(dur>1500.0){
+            Write_Data(sock_send.sockfd,buff0,1);
+            gettimeofday(&start, NULL);
+            //printf(".............\n");
+
+        }
+      
+    
+        if(c1>5000){
             break;
         }
-        c1++;
-        printf("%d\n",c1);
-
+        ///////////////////////////
+      
     }
-    
+
     printf("leaving scope\n");
 
     

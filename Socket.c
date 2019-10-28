@@ -43,18 +43,21 @@ void make_socket(socket_connection* sock){
 }
 
 
-void connect_socket(socket_connection* sock)
+int connect_socket(socket_connection* sock)
 {
     int x;
+    int r=0;
     
     if (connect(sock->sockfd, (SA*)&sock->servaddr, sizeof(sock->servaddr)) != 0) {
         printf("connection with the server failed...\n");
-        exit(0);
+        r=-1;
     }
-    else
+    else{
         x=fcntl(sock->sockfd,F_GETFL,0) ;        // Get socket flags
         fcntl(sock->sockfd,F_SETFL,x | O_NONBLOCK) ;    // Add non-blocking flag
         printf("connected to the server..\n");
+    }
+    return r;
 }
 
 
@@ -221,4 +224,13 @@ void send_event(int sockfd){
     //bzero(buff, sizeof(buff));
     
     
+}
+
+int Write_Data(int sockfd,uint8_t* data, int l)
+{
+    int write_bytes;
+    //printf("sizeof:   %lu  %d\n",sizeof(data), l);
+    write_bytes=write(sockfd,data,l) ;
+    //printf("write bytes=%d\n",write_bytes) ;
+    return(write_bytes) ;
 }

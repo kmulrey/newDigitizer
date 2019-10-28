@@ -73,7 +73,7 @@ int main(int argc,char **argv){
     time1=time(NULL) ;
     printf("start time: %d\n",time1);
     int exit=0;
-    
+    int r=0;
     
     initialize_parameter_lists();
     //printf("checking initialization: %04x\n",ch_property_params[0][0]);
@@ -81,10 +81,11 @@ int main(int argc,char **argv){
     sock_listen.port=PORT2;
 
     make_socket(&sock_send);
-    connect_socket(&sock_send);
+    r=connect_socket(&sock_send);
     make_socket(&sock_listen);
-    connect_socket(&sock_listen);
+    r=connect_socket(&sock_listen);
     
+    if(r>=0){
     
     
     
@@ -180,7 +181,7 @@ int main(int argc,char **argv){
     
 
     
-    
+    }
     
     //sleep(10);
     close(sock_send.sockfd);
