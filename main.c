@@ -42,7 +42,7 @@ socket_connection sock_send;
 int main(int argc,char **argv){
     
 
-    /*
+    
     if(ad_shm_create(&shm_ev,BUFSIZE,sizeof(EV_DATA)/sizeof(uint16_t)) <0){ //ad_shm_create is in shorts!
         printf("Cannot create EVENT shared memory !!\n");
         exit(-1);
@@ -64,7 +64,7 @@ int main(int argc,char **argv){
 
     gpsbuf = (GPS_DATA *) shm_gps.Ubuf;
     //gpsbuf2 = (EV_DATA *) shm_ev.Ubuf;
-     */
+    
 
 
     
@@ -84,6 +84,9 @@ int main(int argc,char **argv){
     connect_socket(&sock_send);
     make_socket(&sock_listen);
     connect_socket(&sock_listen);
+    
+    
+    
     
     end_param=0;
     error_count=0;
@@ -166,23 +169,24 @@ int main(int argc,char **argv){
   
     printf("starting scope related things......\n");
     
-
     
-    //ls_get_station_id();
+    
+    ls_get_station_id();
 
     scope_main();
     
     
-    //printf("out of main!\n");
+    printf("out of main!\n");
+    
 
     
     
     
-    
+    //sleep(10);
     close(sock_send.sockfd);
     close(sock_listen.sockfd);
-    //ad_shm_delete(&shm_gps);
-    //ad_shm_delete(&shm_ev);
+    ad_shm_delete(&shm_gps);
+    ad_shm_delete(&shm_ev);
     printf("clean exit... yay!\n");
 
 

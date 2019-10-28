@@ -35,8 +35,8 @@ void make_socket(socket_connection* sock){
     
     // assign IP, PORT
     sock->servaddr.sin_family = AF_INET;
-    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.61.100");
-    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.99");
+    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.61.100");
+    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.99");
 
     sock->servaddr.sin_port = htons(sock->port);
     
@@ -210,13 +210,14 @@ void send_dummy(int sockfd){
 
 void send_event(int sockfd){
     
-    //char buff[MAX];
-    //bzero(buff, sizeof(buff));
-    //buff[0]=0x99;
+    char buff[MAX];
+    bzero(buff, sizeof(buff));
+    buff[0]=0;//x99;
     //strncpy(buff, "dummy\n", sizeof buff - 1);
-    printf("sent event: %x   %d\n",fake_event[0],sizeof(fake_event));
-    
-    write(sockfd, fake_event, sizeof(fake_event));
+    //printf("sent event: %x   %d\n",fake_event[0],sizeof(fake_event));
+    write(sockfd, buff, sizeof(buff));
+
+    //rite(sockfd, fake_event, sizeof(fake_event));
     //bzero(buff, sizeof(buff));
     
     

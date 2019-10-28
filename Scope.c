@@ -271,6 +271,7 @@ int scope_read(int ioff)
     else if(rawbuf[1] == ID_PARAM_PPS) {
         ir = scope_read_pps(ioff);
         //printf("raw buff: %x\n",rawbuf[2]);
+        printf("----->PPS \n");
 
         //scope_calc_evnsec();
         return(ir);
@@ -463,7 +464,7 @@ int scope_read_event(int32_t ioff)
     int next_write = *(shm_ev.next_write);
     //printf("next write: %d\n",next_write);
     //printf("%d\n",gpsbuf2[0]);
-
+    
     gpsbuf2[next_write].buf[0] = MSG_START;
     gpsbuf2[next_write].buf[1] = ID_PARAM_EVENT;
 
@@ -615,7 +616,7 @@ void read_fake_file(char *name){
 
 void scope_main()
 {
-    //scope_open();
+    scope_open();
     uint8_t buff[200];
     uint32_t length = sizeof(buff);
     
@@ -626,7 +627,7 @@ void scope_main()
     unsigned short list_request=0x0C;
     int i;
     
-    /*
+    
     scope_set_parameters(dig_mode_params,1);
     scope_set_parameters(readout_window_params,1);
     
@@ -635,17 +636,13 @@ void scope_main()
         scope_set_parameters(ch_property_params[i],1);
         scope_set_parameters(ch_trigger_params[i],1);
     }
-     */
+    
 
-    //printf("%d\n",sizeof(eventbuf1[0].buf[0]));
-    //printf("%d\n",sizeof(gpsbuf[0]));
-    //eventbuf = (EV_DATA *) shm_ev.Ubuf;
-
-    /*
-    for(i=0; i<25;i++){
+ /*
+    
+    for(i=0; i<5;i++){
         printf("________%d_______\n",i);
         
-        //scope_read(1);
     }
     */
     /*
@@ -690,25 +687,25 @@ void scope_main()
     /////////////// loop with main PC
     
   
-    char filename[]="test_data/test1.txt";
-    read_fake_file(filename);
+    //char filename[]="test_data/test1.txt";
+    //read_fake_file(filename);
     
+    int c1=0;
+    int r;
+    while(1){
 
+        scope_read(1);
 
-    
-    int e=0;
-    int r=0;
-  // while(1){
-    for(e=0; e<1; e++){
+        
+        // sleep(1);
         send_event(sock_send.sockfd);
-        sleep(2);
         r=func_read_message(sock_listen.sockfd);
         if(r==1){
             break;
         }
-        //e=func_read_message(sock_listen.sockfd);
-    
-    
+        c1++;
+        printf("%d\n",c1);
+
     }
     
     printf("leaving scope\n");
