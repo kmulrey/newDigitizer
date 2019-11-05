@@ -78,21 +78,21 @@ void build_property_ctrlist(char *buff, int32_t size){
     
     uint8_t i=buff[1];
     if(i==0x20){
-        int ch=buff[2];
+        int ch=buff[2]-1;
  
         //printf("ch: %d\n",ch);
 
        // ch_HV[ch]=i= buff[3] << 8 | buff[4];
         ch_HV[ch]= buff[3] << 8 | buff[4];
         //printf("          --> %d: \n",ch_HV[ch]);
-        
+        trigger_condition[ch]=buff[5];
         ch_property_params[ch][2]= buff[10] << 8 | buff[11];  // gain correction
         ch_property_params[ch][3]= buff[12] << 8 | buff[13];  // offset correction, integration time
         ch_property_params[ch][4]= buff[14] << 8 | buff[15];   // base max
         ch_property_params[ch][5]= buff[16] << 8 | buff[17];  // base min
  
-        readout_window_params[2*(ch)+1]=buff[6] << 8 | buff[7];
-        readout_window_params[2*(ch)+2]=buff[8] << 8 | buff[9];
+        readout_window_params[2*(ch)+2]=buff[6] << 8 | buff[7];
+        readout_window_params[2*(ch)+3]=buff[8] << 8 | buff[9];
         
         
         ch_trigger_params[ch][2]= buff[18] << 8 | buff[19];    // signal threshold T1

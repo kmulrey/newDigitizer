@@ -313,6 +313,7 @@ uint8_t shadowlist[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE];  //!< all parameters to 
 uint8_t shadowlistR[PARAM_NUM_LIST][PARAM_LIST_MAXSIZE]; //!< all parameters read from FPGA
 //int32_t shadow_filled = 0;                               //!< the shadow list is not filled
 
+uint8_t trigger_condition[4];
 
 uint16_t dig_mode_params[LEN_MODE_PARAM];
 uint16_t readout_window_params[LEN_READOUT_PARAM];
@@ -354,6 +355,8 @@ typedef struct
     uint32_t t3_nanoseconds;  //!< proper timing
     uint32_t t2_nanoseconds;  //!< rough timing for t2 purposes only
     uint32_t CTD;             //!< clock tick of the trigger
+    int trigger_flag;         //!< see that the trigger condition has been met, send event
+
     uint32_t evsize;          //!< size of the event
     float quant1;             //!< quant error previous PPS
     float quant2;             //!< quant error next PPS
@@ -388,3 +391,5 @@ int32_t scope_read_pps();
 void scope_fill_ph(uint8_t *buf);
 uint8_t fake_event[MAX_READOUT];
 void read_fake_file(char* name);
+void scope_print_event(uint8_t *buf);
+int check_trigger(uint8_t *buf);

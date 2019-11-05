@@ -152,7 +152,7 @@ void scope_write(uint8_t *buf, int32_t len) // ok 24/7/2012
 void scope_set_parameters(uint16_t *data, int to_shadow)
 {
     int i;
-    printf("Writing parameters:");
+    printf("Writing parameters: %x, %x\n",data[0],data[1]);
     for(i=0;i<data[1]/2;++i) printf(" %04x",data[i]);
     printf("\n");
     i=(data[0]>>8)&0xff;
@@ -210,7 +210,7 @@ int scope_read_error()
 int scope_read(int ioff)
 {
     unsigned short int totlen;
-    int rread,nread,ntry;
+    int rread,nread,ntry,trigg;
     int ir;
     unsigned char rawbuf[4]={0,0,0,0};
     
@@ -291,14 +291,21 @@ int scope_read(int ioff)
     else if(rawbuf[1] == ID_PARAM_EVENT)
     {
         ir=scope_read_event(ioff);
-        printf("----->EVENT!!!! \n");
+        printf("----->EVENT!!!!  ");
+        
         //Write_Data(sock_send.sockfd,rawbuf);
         if(*(shm_ev.next_write)>0){
+            //trigg=check_trigger(gpsbuf2[*(shm_ev.next_write)-1].buf);
+
            // printf("event number:    %d  %x  %x  %x\n",*(shm_ev.next_write),gpsbuf2[*(shm_ev.next_write)-1].buf[0],gpsbuf2[*(shm_ev.next_write)-1].buf[1],gpsbuf2[*(shm_ev.next_write)-1].buf[2]);
-            Write_Data(sock_send.sockfd,gpsbuf2[*(shm_ev.next_write)-1].buf,sizeof(gpsbuf2[*(shm_ev.next_write)-1].buf));
-            
+            if(gpsbuf2[*(shm_ev.next_write)-1].trigger_flag>=trigger_condition[0]){
+                printf("-sent  ");
+                Write_Data(sock_send.sockfd,gpsbuf2[*(shm_ev.next_write)-1].buf,sizeof(gpsbuf2[*(shm_ev.next_write)-1].buf));
+            }
+            printf("\n");
         }
-        
+        int e;
+       
         //printf("raw buff: %x\n",rawbuf[2]);
 
         return(ir);
@@ -354,13 +361,13 @@ int scope_read(int ioff)
      leap_sec = (int)(*(unsigned short *)&gpsbuf[evgps].buf[PPS_FLAGS]);
      //printf("SCOPE_READ_PPS %d\n",tp.tv_sec);
      
-     /*
+     
      for(i=0;i<4;i++) {
          if(n_events[i]>0) printf("%d ",pheight[i]/n_events[i]);
         pheight[i] = 0;
          n_events[i] = 0;
      }
-      */
+      
      printf("\n");
      if((*(short *)&(gpsbuf[evgps].buf[PPS_RATE])) == 0) {
          seczero ++;
@@ -402,7 +409,7 @@ int scope_read(int ioff)
      // NOTE: difftime() is apparently broken in this uclibc
      gpsbuf[evgps].ts_seconds -= (unsigned int)GPS_EPOCH_UNIX;
      //gpsbuf[evgps].ts_seconds -= leap_sec;
-     printf("PPS Time stamp = %d (%d)\n",gpsbuf[evgps].ts_seconds,GPS_EPOCH_UNIX);
+     //printf("PPS Time stamp = %d (%d)\n",gpsbuf[evgps].ts_seconds,GPS_EPOCH_UNIX);
      // time in GPS epoch CT 20110630 FIXED Number
      gpsbuf[evgps].CTP = (*(int *)&gpsbuf[evgps].buf[PPS_CTP])&0x7fffffff; //ok 25/7/2012
      gpsbuf[evgps].sync =(gpsbuf[evgps].buf[PPS_CTP]>>7)&0x1;
@@ -559,6 +566,25 @@ int scope_read_event(int32_t ioff)
     if((gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]&0x4)!=0) gpsbuf[evgps].rate[2] ++;
     if((gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]&0x8)!=0) gpsbuf[evgps].rate[3] ++;
     //
+    uint8_t trigg;
+    trigg=check_trigger( gpsbuf2[next_write].buf);
+    
+    gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]=gpsbuf2[next_write].buf[EVENT_TRIGMASK+1]|trigg<<4;
+    int t1;
+    int t2;
+    int t3;
+    int t4;
+    
+    t1=(trigg&0x0008)>>3;
+    t2=(trigg&0x0004)>>2;
+    t3=(trigg&0x0002)>>1;
+    t4=(trigg&0x0001);
+    //printf("trigger dec ---> %d %d %d %d",t1,t2,t3,t4);
+    //int trig_sum;
+    //trig_sum=t1+t2+t3+t4;
+    gpsbuf2[next_write].trigger_flag=t1+t2+t3+t4;
+
+    //printf("trigger hex: %x ---> %d %d %d %d = %d",trigg,(trigg&0x0008)>>3,(trigg&0x0004)>>2,(trigg&0x0002)>>1,(trigg&0x0001),gpsbuf2[next_write].trigger_flag);
     
     if(gpsbuf[prevgps].clock_tick != 0 &&
        gpsbuf2[next_write].t2_nanoseconds != -1) {
@@ -632,13 +658,86 @@ void read_fake_file(char *name){
 
 
 
+/*!
+ \func void scope_print_event(uint8_t *buf)
+ \brief print all information from an event read from the fpga
+ */
+void scope_print_event(uint8_t *buf)  //ok 26/7/2012
+{
+    int32_t i,istart,iend,iadc,len[4];
+    uint16_t *sb=(uint16_t *)buf;
+    
+    printf("Event record: 0x%x 0x%x Trigger Mask 0x%04x\n",sb[0],sb[1],sb[2]);
+    sb = (unsigned short *)&buf[EVENT_GPS];
+    printf("  GPS: %02d-%02d-%d %02d:%02d:%02d ",buf[EVENT_GPS+3],buf[EVENT_GPS+2],*sb,
+           buf[EVENT_GPS+4],buf[EVENT_GPS+5],buf[EVENT_GPS+6]);
+    printf("Status 0x%02x CTD %d\n",buf[EVENT_STATUS],*(int *)&buf[EVENT_CTD]);
+    printf("Readout length: ");
+    for(i=0;i<4;i++) {
+        printf("%d ",*(short *)&buf[EVENT_LENCH1+2*i]);
+        len[i] = *(short *)&buf[EVENT_LENCH1+2*i];
+    }
+    printf("\n");
+    printf("Trigger Levels: ");
+    for(i=0;i<4;i++) printf("(%d,%d) ",*(short *)&buf[EVENT_THRES1CH1+2*i],
+                            *(short *)&buf[EVENT_THRES2CH1+2*i]);
+    printf("\n");
+    printf("List01: ");
+    for(i=EVENT_CTRL;i<EVENT_WINDOWS;i++) printf(" 0x%02x",buf[i]);
+    printf("\n");
+    printf("List02: ");
+    for(i=EVENT_WINDOWS;i<EVENT_ADC;i++) printf(" 0x%02x",buf[i]);
+    printf("\n");
+    istart = EVENT_ADC;
+    for(i=0;i<4;i++){
+        iend = istart+2*len[i];
+        printf("Channel %d:",i+1);
+        for(iadc=istart;iadc<iend;iadc+=2) {
+            if((iadc-istart)==(16*((iadc-istart)/16))) printf("\n");
+            printf("%6d ",*(short *)&buf[iadc]);
+        }
+        printf("\n");
+        istart = iend;
+    }
+    printf("End Marker 0x%4x (last adc 0x%04x)\n",
+           *(unsigned short *)&buf[iend], *(unsigned short *)&buf[iend-2]);
+}
 
 
 
 
 
-
-
+// check if trigger condition is met for multiple channels
+int check_trigger(uint8_t *buf){
+    
+    int trigg[4]={0,0,0,0};
+    
+    int32_t i,istart,iend,iadc,len[4],T1[4];
+    uint16_t *sb=(uint16_t *)buf;
+    
+    
+    for(i=0;i<4;i++) {
+        len[i] = *(short *)&buf[EVENT_LENCH1+2*i];
+    }
+     
+    
+    
+    for(i=0;i<4;i++){
+        T1[i]=*(short *)&buf[EVENT_THRES1CH1+2*i];
+    }
+    
+    istart = EVENT_ADC;
+    for(i=0;i<4;i++){
+        iend = istart+2*len[i];
+        for(iadc=istart;iadc<iend;iadc+=2) {
+            if(-1*(*(short *)&buf[iadc])>T1[i]){trigg[i]=1;}
+        }
+        istart = iend;
+    }
+    //printf("trigger pattern:  %d %d %d %d\n",trigg[3],trigg[2],trigg[1],trigg[0]);
+    
+    return trigg[0]<<3 | trigg[1]<<2 | trigg[2]<<1 | trigg[3];
+}
 
 
 
@@ -725,11 +824,13 @@ void scope_main()
     unsigned char buff0[100];
     bzero(buff, sizeof(buff));
     buff0[0]=0;//x99;
-    struct timeval stop, start;
+    struct timeval stop, start,start0;
     float dur=0;
+    float dur0=0;
 
     gettimeofday(&start, NULL);
-    
+    gettimeofday(&start0, NULL);
+
     while(1){
 
         scope_read(1);
@@ -750,7 +851,8 @@ void scope_main()
         c1++;
         gettimeofday(&stop, NULL);
         dur= (double) (stop.tv_sec - start.tv_sec) * 1000 + (double) (stop.tv_usec - start.tv_usec) / 1000;
-        
+        dur0= (double) (stop.tv_sec - start0.tv_sec) * 1000 + (double) (stop.tv_usec - start0.tv_usec) / 1000;
+
         if(dur>1500.0){
             Write_Data(sock_send.sockfd,buff0,1);
             gettimeofday(&start, NULL);
@@ -758,10 +860,12 @@ void scope_main()
 
         }
       
-    
-        if(c1>5000){
+    /*
+        if(dur0>10000){
+            printf("................time's up................\n");
             break;
         }
+     */
         ///////////////////////////
       
     }
