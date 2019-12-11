@@ -68,6 +68,16 @@ gw: 10.196.47.254
 
 ________________________New Stations__________________________________
 
+digitizer login:
+root@ip
+pw: Watson%7%
+
+iBoot login:
+admin
+admin
+
+
+
 LORA6 (CS017)
 
 digitizer (sn:)
