@@ -80,7 +80,7 @@ admin
 
 LORA6 (CS017)
 
-digitizer (sn:)
+digitizer (sn:42)
 ip:192.168.88.7
 HV (SN: HV03)
 ip: 192.168.88.12
@@ -96,7 +96,7 @@ ________________________
 
 LORA7 (CS001)
 
-digitizer (sn:)
+digitizer (sn:46)
 ip:192.168.88.8
 HV (SN: HV03)
 ip: 192.168.88.13
@@ -157,5 +157,7 @@ gw: 10.196.47.254
 
 
 Note- original values for HV IP and gateware are IP= 192.167.1.102, gateway= 192.167.1.1
-iBoot user/pw are admin/admin
+iBoot user/pw are admin/admin and user/l0r@
+
+Change IP on digitizers from /etc/network/interfaces
 
