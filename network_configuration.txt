@@ -152,3 +152,10 @@ iBoot
 ip: 10.196.40.249
 gw: 10.196.47.254
 
+
+
+
+
+Note- original values for HV IP and gateware are IP= 192.167.1.102, gateway= 192.167.1.1
+iBoot user/pw are admin/admin
+
