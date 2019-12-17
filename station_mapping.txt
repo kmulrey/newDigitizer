@@ -1,0 +1,16 @@
+This file contains information about how to map LORA# to station, and channel number to LORA#.  Also recorded is GPS info for each.
+
+
+
+LORA 6  -CS017
+
+
+
+
+
+
+LORA 7  -CS001
+
+LORA 8  -CS032
+LORA 9  -CS021
+LORA 10 -CS013
