@@ -18,7 +18,7 @@
 
 #define MAX 200
 #define SA struct sockaddr
-
+int PORT_NUM=3301 ;
 
 
 void make_socket(socket_connection* sock){
@@ -44,6 +44,23 @@ void make_socket(socket_connection* sock){
     sock->servaddr.sin_port = htons(sock->port);
     
 }
+int connect_socket2(socket_connection* sock)
+{
+    
+    Host_Addr.sin_family=AF_INET ;
+    Host_Addr.sin_port=htons(PORT_NUM) ;
+    Host_Addr.sin_addr=*(struct in_addr*)Host->h_addr ;
+    
+    printf("Address=%u\n",Host_Addr.sin_addr.s_addr) ;
+    memset(Host_Addr.sin_zero,'\0',sizeof Host_Addr.sin_zero) ;
+    
+    if((sock->sockfd=socket(AF_INET,SOCK_STREAM,0))==-1)
+    {
+        perror("socket(): Error\n") ;
+        exit(1) ;
+    }
+    return 0 ;
+}
 
 
 int connect_socket(socket_connection* sock)
@@ -62,6 +79,8 @@ int connect_socket(socket_connection* sock)
     }
     return r;
 }
+
+
 
 
 void func_write(int sockfd)

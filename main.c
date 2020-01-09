@@ -79,12 +79,13 @@ int main(int argc,char **argv){
     //printf("checking initialization: %04x\n",ch_property_params[0][0]);
     sock_send.port=PORT1;
     sock_listen.port=PORT2;
-    /*
-    make_socket(&sock_send);
-    r=connect_socket(&sock_send);
-    make_socket(&sock_listen);
-    r=connect_socket(&sock_listen);
-    */
+    
+    //make_socket(&sock_send);
+    
+    r=connect_socket2(&sock_send);
+    //make_socket(&sock_listen);
+    //r=connect_socket(&sock_listen);
+    
     /*
     if(r>=0){
     
