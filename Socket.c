@@ -51,8 +51,8 @@ void make_socket(socket_connection* sock){
 
     sock->servaddr.sin_port = htons(sock->port);
     
-    //sock->servaddr.sin_addr=*(struct in_addr*)Host->h_addr ;
-    //printf("Address=%u\n",sock->servaddr.sin_addr.s_addr) ;
+    sock->servaddr.sin_addr=*(struct in_addr*)Host->h_addr ;
+    printf("Address=%u\n",sock->servaddr.sin_addr.s_addr) ;
 
     //memset(Host_Addr.sin_zero,'\0',sizeof Host_Addr.sin_zero) ;
 
