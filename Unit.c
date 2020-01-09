@@ -84,7 +84,7 @@ void build_property_ctrlist(char *buff, int32_t size){
 
        // ch_HV[ch]=i= buff[3] << 8 | buff[4];
         ch_HV[ch]= buff[3] << 8 | buff[4];
-        //printf("          --> %d: \n",ch_HV[ch]);
+        printf("          --> %d: \n",ch_HV[ch]);
         trigger_condition[ch]=buff[5];
         ch_property_params[ch][2]= buff[10] << 8 | buff[11];  // gain correction
         ch_property_params[ch][3]= buff[12] << 8 | buff[13];  // offset correction, integration time
@@ -100,7 +100,7 @@ void build_property_ctrlist(char *buff, int32_t size){
         ch_trigger_params[ch][4]= buff[22] << 8 | buff[23];    // t_prev (n*5ns)
         ch_trigger_params[ch][5]= buff[24] << 8 | buff[25];    // tcmax (n*5ns)
         ch_trigger_params[ch][6]= buff[26] << 8 | buff[27];    // ncmin
-        ch_trigger_params[ch][7]= buff[28] << 8 | 0x00;    // qmin
+        ch_trigger_params[ch][7]= 1 << 8 | buff[28];    // qmin
  
     }
     
