@@ -80,9 +80,9 @@ int main(int argc,char **argv){
     sock_send.port=PORT1;
     sock_listen.port=PORT2;
     
-    //make_socket(&sock_send);
+    make_socket(&sock_send);
     
-    r=connect_socket2(&sock_send);
+    //r=connect_socket2(&sock_send);
     //make_socket(&sock_listen);
     //r=connect_socket(&sock_listen);
     
