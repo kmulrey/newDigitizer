@@ -188,10 +188,11 @@ int main(int argc,char **argv){
     //sleep(10);
     close(sock_send.sockfd);
     close(sock_listen.sockfd);
+     */
     ad_shm_delete(&shm_gps);
     ad_shm_delete(&shm_ev);
     printf("clean exit... yay!\n");
-    */
+    
 
     return 0;
 }
