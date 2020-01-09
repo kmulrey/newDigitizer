@@ -160,4 +160,4 @@ Note- original values for HV IP and gateware are IP= 192.167.1.102, gateway= 192
 iBoot user/pw are admin/admin and user/l0r@
 
 Change IP on digitizers from /etc/network/interfaces
-
+test2020
