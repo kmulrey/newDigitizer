@@ -30,31 +30,18 @@ void make_socket(socket_connection* sock){
         exit(0);
     }
     else
-        printf("Socket successfully created..\n");
-    
-    
-    
+    printf("Socket successfully created..\n");
     bzero(&sock->servaddr, sizeof(sock->servaddr));
     
     // assign IP, PORT
-    
-    
     sock->servaddr.sin_family = AF_INET;
-    
-    
-    
     //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.61.100");
     //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.56.99");
     //sock->servaddr.sin_addr.s_addr = inet_addr("172.18.1.100");
-    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.40.100");
-    //sock->servaddr.sin_addr.s_addr = inet_addr("192.168.88.1");
-
+    sock->servaddr.sin_addr.s_addr = inet_addr("192.168.40.100");
+    
     sock->servaddr.sin_port = htons(sock->port);
     
-    sock->servaddr.sin_addr=*(struct in_addr*)Host->h_addr ;
-    //printf("Address=%u\n",sock->servaddr.sin_addr) ;
-
-    //memset(Host_Addr.sin_zero,'\0',sizeof Host_Addr.sin_zero) ;
 
 }
 int connect_socket2(socket_connection* sock)
