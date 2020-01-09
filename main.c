@@ -67,7 +67,7 @@ int main(int argc,char **argv){
     
 
 
-    /*
+    
     
     time_t time1,time2 ;
     time1=time(NULL) ;
@@ -79,7 +79,7 @@ int main(int argc,char **argv){
     //printf("checking initialization: %04x\n",ch_property_params[0][0]);
     sock_send.port=PORT1;
     sock_listen.port=PORT2;
-
+    /*
     make_socket(&sock_send);
     r=connect_socket(&sock_send);
     make_socket(&sock_listen);
