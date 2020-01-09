@@ -15,8 +15,8 @@
 #include "Scope.h"
 #include "Socket.h"
 
-#define    PORT1    8002
-#define    PORT2    8003
+#define    PORT1    3311
+#define    PORT2    3312
 int dtime=2;
 
 shm_struct shm_ev; //!< shared memory containing all event info, including read/write pointers
@@ -82,7 +82,7 @@ int main(int argc,char **argv){
     
     make_socket(&sock_send);
     
-    //r=connect_socket2(&sock_send);
+    r=connect_socket(&sock_send);
     //make_socket(&sock_listen);
     //r=connect_socket(&sock_listen);
     
