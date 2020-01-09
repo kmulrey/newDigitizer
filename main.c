@@ -86,7 +86,7 @@ int main(int argc,char **argv){
     make_socket(&sock_listen);
     r=connect_socket(&sock_listen);
     
-    /*
+    
     if(r>=0){
     
     
@@ -184,7 +184,7 @@ int main(int argc,char **argv){
 
     
     }
-    */
+    
     //sleep(10);
     close(sock_send.sockfd);
     close(sock_listen.sockfd);
